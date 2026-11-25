@@ -2,7 +2,7 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { factoryItems, GENRES, searchLibrary, userItems, type LibraryItem } from '../../library/catalog';
 import { deleteUserSample, importUserSample, listUserSamples, previewSample, type UserSampleMeta } from '../../library/sampleStore';
 import { LICENSES, licenseFor } from '../../library/licenses';
-import { getPreset } from '../../instruments/presets';
+import { getPreset, PRESET_CATEGORIES } from '../../instruments/presets';
 import { dbGet, dbPut } from '../../storage/db';
 import * as A from '../../state/actions';
 import { store, useStore } from '../../state/store';
@@ -13,7 +13,7 @@ import { createTrack } from '../../model/factory';
 import * as Tone from 'tone';
 import { createInstrument } from '../../instruments/factory';
 
-const CATEGORIES = ['All', 'Favorites', 'Drums', 'Bass', 'Keys', 'Synths', 'Imported'];
+const CATEGORIES = ['All', 'Favorites', ...PRESET_CATEGORIES, 'Imported'];
 
 /** Plays a short phrase through a temporary instance of a preset. */
 async function previewPreset(id: string): Promise<void> {

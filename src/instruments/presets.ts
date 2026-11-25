@@ -1,7 +1,10 @@
 import type { InstrumentConfig, ParamValue } from '../model/types';
 import { DRUM_KITS } from './drumKits';
+import { PACKS } from '../library/samplePacks';
 
-export type PresetCategory = 'Drums' | 'Bass' | 'Keys' | 'Synths';
+export type PresetCategory = 'Drums' | 'Bass' | 'Keys' | 'Synths' | 'Strings & Brass' | 'Vocals' | 'Guitar & World';
+
+export const PRESET_CATEGORIES: PresetCategory[] = ['Drums', 'Bass', 'Keys', 'Synths', 'Strings & Brass', 'Vocals', 'Guitar & World'];
 
 export interface InstrumentPreset {
   id: string;
@@ -14,13 +17,101 @@ export interface InstrumentPreset {
   /** Default octave range for new notes (used by generators/piano roll focus). */
   focusNote: number;
   config: InstrumentConfig;
+  /** Licence id (library/licenses.ts). Synth presets are GROOVE LAB factory sounds. */
+  license?: string;
+  /** Sampled presets download audio the first time they are used. */
+  sampled?: boolean;
 }
 
 const synth = (params: Record<string, ParamValue>): InstrumentConfig => ({ type: 'synth', presetId: '', params });
 const organ = (params: Record<string, ParamValue>): InstrumentConfig => ({ type: 'organ', presetId: '', params });
 
+const sampler = (pack: string, params: Record<string, ParamValue> = {}): InstrumentConfig => ({
+  type: 'sampler',
+  presetId: '',
+  params: { pack, attack: 0.002, release: 0.4, level: 0, ...params },
+});
+
 const drawbars = (reg: string): Record<string, number> =>
   Object.fromEntries(reg.split('').map((c, i) => [`db${i + 1}`, Number(c)]));
+
+
+interface SampledDef {
+  id: string;
+  pack: string;
+  name: string;
+  category: PresetCategory;
+  family: string;
+  description: string;
+  tags: string[];
+  focusNote: number;
+  params?: Record<string, ParamValue>;
+}
+
+/** Sampled instruments built from licensed packs (scripts/sound-packs/build_packs.py). */
+const SAMPLED_DEFS: SampledDef[] = [
+  { id: 'smp-grand-piano', pack: 'piano-grand', name: 'Grand Piano', category: 'Keys', family: 'Piano', focusNote: 60, tags: ['piano', 'soulful', 'acoustic'],
+    description: 'Sampled Yamaha C5 concert grand. Warm, natural and expressive.', params: { level: -4.5, release: 0.6 } },
+  { id: 'smp-rhodes', pack: 'rhodes-mk1', name: 'Rhodes Mark I', category: 'Keys', family: 'Electric Piano', focusNote: 60, tags: ['rhodes', 'deep house', 'soulful', 'chords'],
+    description: 'Sampled 1977 Rhodes Stage 73 with three velocity layers — play harder for bark.', params: { level: -10.5, release: 0.5 } },
+  { id: 'smp-house-piano', pack: 'house-piano', name: 'House Piano', category: 'Keys', family: 'House Piano', focusNote: 60, tags: ['house', 'piano', '90s', 'stab'],
+    description: 'Bright piano for classic house piano riffs and stabs.', params: { level: -4.5, release: 0.35 } },
+  { id: 'smp-electric-grand', pack: 'electric-grand', name: 'Electric Grand', category: 'Keys', family: 'Piano', focusNote: 60, tags: ['piano', 'house', 'garage'],
+    description: 'Electric grand piano — punchy and bright, great for garage chords.', params: { level: -7.0, release: 0.4 } },
+  { id: 'smp-dx-piano', pack: 'dx-piano', name: 'DX Piano', category: 'Keys', family: 'Electric Piano', focusNote: 60, tags: ['fm', '80s', 'soulful'],
+    description: 'Glassy FM electric piano, the 80s/90s ballad sound.', params: { level: -9.0, release: 0.5 } },
+  { id: 'smp-vibes', pack: 'vibraphone', name: 'Vibraphone', category: 'Keys', family: 'Mallets', focusNote: 72, tags: ['deep house', 'jazz', 'mallets'],
+    description: 'Soft vibraphone — jazzy deep house top lines.', params: { level: -2.0, release: 0.8 } },
+  { id: 'smp-marimba', pack: 'marimba', name: 'Marimba', category: 'Keys', family: 'Mallets', focusNote: 72, tags: ['mallets', 'percussive', 'tropical'],
+    description: 'Woody marimba for percussive melodic hooks.', params: { level: -6.0, release: 0.3 } },
+  { id: 'smp-finger-bass', pack: 'finger-bass', name: 'Finger Bass', category: 'Bass', family: 'Electric Bass', focusNote: 36, tags: ['soulful house', 'funk', 'live'],
+    description: 'Fingered electric bass for soulful and disco-flavoured house.', params: { level: -8.5, release: 0.15 } },
+  { id: 'smp-classic-synth-bass', pack: 'synth-bass-1', name: 'Classic Synth Bass', category: 'Bass', family: 'Synth Bass', focusNote: 36, tags: ['house', '90s', 'synth'],
+    description: 'Sampled analogue-style synth bass, 90s house flavour.', params: { level: -13.0, release: 0.12 } },
+  { id: 'smp-strings', pack: 'strings', name: 'String Ensemble', category: 'Strings & Brass', family: 'Strings', focusNote: 60, tags: ['soulful house', 'disco', 'strings'],
+    description: 'Lush string section for soulful builds and disco house.', params: { level: -7.5, attack: 0.08, release: 1.2 } },
+  { id: 'smp-synth-strings', pack: 'synth-strings', name: 'Synth Strings', category: 'Strings & Brass', family: 'Strings', focusNote: 60, tags: ['deep house', 'pad', '80s'],
+    description: 'Analogue string machine — warm pads with a vintage edge.', params: { level: -7.5, attack: 0.1, release: 1.4 } },
+  { id: 'smp-orch-stab', pack: 'orchestra-hit', name: 'Orchestra Stab', category: 'Strings & Brass', family: 'Stabs', focusNote: 60, tags: ['house', '90s', 'stab', 'rave'],
+    description: 'The classic 90s house orchestra hit.', params: { level: -5.5, release: 0.3 } },
+  { id: 'smp-brass-stab', pack: 'brass-section', name: 'Brass Stab', category: 'Strings & Brass', family: 'Stabs', focusNote: 60, tags: ['house', 'disco', 'stab'],
+    description: 'Short brass section stabs for disco and funky house.', params: { level: -6.5, release: 0.25 } },
+  { id: 'smp-synth-brass', pack: 'synth-brass', name: 'Synth Brass', category: 'Strings & Brass', family: 'Stabs', focusNote: 60, tags: ['80s', 'house', 'synth'],
+    description: 'Fat synth brass for big chord stabs.', params: { level: -9.0, release: 0.4 } },
+  { id: 'smp-sax', pack: 'alto-sax', name: 'Alto Sax', category: 'Strings & Brass', family: 'Solo', focusNote: 67, tags: ['soulful', 'deep house', 'solo'],
+    description: 'Alto sax for soulful, late-night deep house hooks.', params: { level: -10.0, release: 0.3 } },
+  { id: 'smp-flute', pack: 'flute', name: 'Flute', category: 'Strings & Brass', family: 'Solo', focusNote: 72, tags: ['deep house', 'organic', 'solo'],
+    description: 'Breathy flute — organic deep house melodies.', params: { level: -12.5, release: 0.3 } },
+  { id: 'smp-choir', pack: 'choir-aahs', name: 'Choir Aahs', category: 'Vocals', family: 'Choir', focusNote: 60, tags: ['vocal', 'pad', 'soulful', 'gospel'],
+    description: 'Choir “aah” pads — instant soulful atmosphere.', params: { level: -7.0, attack: 0.08, release: 1.2 } },
+  { id: 'smp-voice-oohs', pack: 'voice-oohs', name: 'Voice Oohs', category: 'Vocals', family: 'Choir', focusNote: 60, tags: ['vocal', 'ukg', 'pad', 'chops'],
+    description: 'Soft “ooh” voices — play short notes for garage-style vocal chops.', params: { level: -9.5, attack: 0.02, release: 0.6 } },
+  { id: 'smp-nylon-guitar', pack: 'nylon-guitar', name: 'Nylon Guitar', category: 'Guitar & World', family: 'Guitar', focusNote: 60, tags: ['deep house', 'organic', 'guitar'],
+    description: 'Nylon-string guitar plucks for organic deep house.', params: { level: -4.0, release: 0.4 } },
+  { id: 'smp-funk-guitar', pack: 'muted-guitar', name: 'Funk Guitar', category: 'Guitar & World', family: 'Guitar', focusNote: 60, tags: ['disco', 'funky house', 'guitar'],
+    description: 'Muted electric guitar for funky house 16th-note chops.', params: { level: 3.0, release: 0.12 } },
+  { id: 'smp-kalimba', pack: 'kalimba', name: 'Kalimba', category: 'Guitar & World', family: 'World', focusNote: 72, tags: ['afro house', 'organic', 'pluck'],
+    description: 'Kalimba thumb piano — afro and organic house hooks.', params: { level: 1.5, release: 0.3 } },
+  { id: 'smp-steel-drum', pack: 'steel-drum', name: 'Steel Drum', category: 'Guitar & World', family: 'World', focusNote: 72, tags: ['tropical', 'pluck'],
+    description: 'Caribbean steel pan for tropical house.', params: { level: -0.5, release: 0.3 } },
+  { id: 'smp-warm-pad', pack: 'warm-pad', name: 'Sampled Warm Pad', category: 'Synths', family: 'Pads', focusNote: 60, tags: ['pad', 'deep house', 'warm'],
+    description: 'Sampled warm analogue pad.', params: { level: -3.5, attack: 0.15, release: 1.5 } },
+];
+
+function sampledPresets(): InstrumentPreset[] {
+  return SAMPLED_DEFS.filter((d) => PACKS.some((p) => p.id === d.pack)).map((d) => ({
+    id: d.id,
+    name: d.name,
+    category: d.category,
+    family: d.family,
+    description: d.description,
+    tags: d.tags,
+    focusNote: d.focusNote,
+    config: sampler(d.pack, d.params),
+    license: PACKS.find((p) => p.id === d.pack)!.licenseId,
+    sampled: true,
+  }));
+}
 
 export const PRESETS: InstrumentPreset[] = [
   // ------------------------------------------------------------------ Drums
@@ -184,6 +275,7 @@ export const PRESETS: InstrumentPreset[] = [
     tags: ['atmos', 'texture', 'ambient', 'dark'],
     config: synth({ engine: 'fm', harmonicity: 3.5, modIndex: 12, modWave: 'triangle', modDecay: 3, modSustain: 0.6, attack: 2, decay: 2, sustain: 0.8, release: 3, chorus: 0.6, movement: 0.7, movementRate: 0.08, level: -6 }),
   },
+  ...sampledPresets(),
 ];
 
 export function getPreset(id: string): InstrumentPreset | undefined {

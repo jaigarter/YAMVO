@@ -1,7 +1,7 @@
-import { PRESETS, type PresetCategory } from '../../instruments/presets';
+import { PRESETS, PRESET_CATEGORIES, type PresetCategory } from '../../instruments/presets';
 import * as A from '../../state/actions';
 
-const CATS: PresetCategory[] = ['Drums', 'Bass', 'Keys', 'Synths'];
+const CATS: PresetCategory[] = PRESET_CATEGORIES;
 
 export function AddTrackMenu({ onClose, style }: { onClose: () => void; style?: React.CSSProperties }) {
   return (

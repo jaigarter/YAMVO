@@ -73,7 +73,7 @@ export function createEmptyProject(name = 'Untitled Groove'): Project {
   p.tracks = [
     createTrack('kit-ukg', { color: TRACK_COLORS[0], mixer: { volume: -4 } }),
     createTrack('bass-deep-sub', { name: 'Bass', color: TRACK_COLORS[4], mixer: { volume: -5 } }),
-    createTrack('keys-tine-ep', { name: 'Chords', color: TRACK_COLORS[1], mixer: { volume: -8, sends: { reverb: 0.25, delay: 0.1 } } }),
+    createTrack('smp-rhodes', { name: 'Chords', color: TRACK_COLORS[1], mixer: { volume: -8, sends: { reverb: 0.25, delay: 0.1 } } }),
   ];
   for (const t of p.tracks) t.clips.push(createClip(0, 16, 4, [], t.name));
   return p;
@@ -112,7 +112,7 @@ export function createDemoProject(): Project {
   bass.clips.push(createClip(0, 64, 8, bassNotes, 'Bounce'));
 
   // --------------------------------------------------------------- chords
-  const keys = createTrack('keys-tine-ep', { name: 'Chords', color: TRACK_COLORS[1], mixer: { volume: -9, sends: { reverb: 0.3, delay: 0.12 } } });
+  const keys = createTrack('smp-rhodes', { name: 'Chords', color: TRACK_COLORS[1], mixer: { volume: -9, sends: { reverb: 0.3, delay: 0.12 } } });
   const fm9 = diatonicChord('F', 'minor', 0, 'minor9-house', 3);
   const dbmaj9 = diatonicChord('F', 'minor', 5, 'minor9-house', 3);
   const stab = (chord: number[], bar: number, hits: [number, number, number][]) =>

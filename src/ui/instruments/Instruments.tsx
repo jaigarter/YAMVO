@@ -1,7 +1,7 @@
 import { useMemo, useState } from 'react';
 import { useStore } from '../../state/store';
 import * as A from '../../state/actions';
-import { PRESETS, getPreset, type PresetCategory } from '../../instruments/presets';
+import { PRESETS, PRESET_CATEGORIES, getPreset, type PresetCategory } from '../../instruments/presets';
 import { paramSpecsFor, type ParamSpec } from '../../instruments/params';
 import { Knob, Toggle } from '../components/controls';
 import type { Track } from '../../model/types';
@@ -10,7 +10,7 @@ import { Keyboard } from './Keyboard';
 import { useMidiStatus, enableMidi } from '../../midi/input';
 import { searchLibrary, factoryItems } from '../../library/catalog';
 
-const CATS: PresetCategory[] = ['Drums', 'Bass', 'Keys', 'Synths'];
+const CATS: PresetCategory[] = PRESET_CATEGORIES;
 
 function ParamControl({ track, spec }: { track: Track; spec: ParamSpec }) {
   const raw = track.instrument.params[spec.key];

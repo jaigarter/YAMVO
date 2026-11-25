@@ -1,5 +1,7 @@
 import { DRUM_VOICES, type DrumVoiceId } from '../instruments/drumSynthesis';
 import { PRESETS } from '../instruments/presets';
+import { PACKS } from './samplePacks';
+import packPercussion from '../../public/packs/gm-percussion.json';
 import type { UserSampleMeta } from './sampleStore';
 
 export type LibraryKind = 'sample' | 'preset';
@@ -41,9 +43,20 @@ export function factoryItems(): LibraryItem[] {
     type: p.family,
     tags: p.tags,
     description: p.description,
-    license: 'groove-lab-factory',
+    license: p.license ?? 'groove-lab-factory',
   }));
-  return [...presets, ...voices];
+  const perc: LibraryItem[] = (packPercussion.zones as { id?: string; label?: string; category?: string }[])
+    .filter((z) => z.id)
+    .map((z) => ({
+      id: `pack:gm-percussion/${z.id}`,
+      kind: 'sample',
+      name: z.label!,
+      category: 'Drums',
+      type: z.category ?? 'Perc',
+      tags: ['percussion', 'house', 'latin'],
+      license: PACKS.find((p) => p.id === 'gm-percussion')?.licenseId ?? 'fluidr3',
+    }));
+  return [...presets, ...voices, ...perc];
 }
 
 export function userItems(samples: UserSampleMeta[]): LibraryItem[] {

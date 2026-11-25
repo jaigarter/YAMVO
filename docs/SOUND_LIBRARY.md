@@ -1,7 +1,10 @@
 # GROOVE LAB — Sound Library: inventario y plan
 
-> Estado: **pendiente de aprobación.** No se ha descargado ni redistribuido ningún sonido de terceros.
-> Todo lo que suena hoy en GROOVE LAB es síntesis propia (CC0) generada por el código de `src/instruments/`.
+> Estado (25-11-2026): **A, B y D integrados** — 24 paquetes, 11,2 MB, 23 presets sampleados + 25 percusiones.
+> C (GeneralUser GS) descartado por la duda de procedencia; D (MIT) cubre los mismos instrumentos.
+> E (Freesound) pendiente de red + clave API.
+> Pipeline: `python3 -I scripts/sound-packs/build_packs.py <descargas> .` → `public/packs/<id>.mp3` + `.json`
+> (un "sprite" por instrumento; la app lo decodifica una vez y lo trocea en zonas, con capas de velocidad).
 
 ---
 
