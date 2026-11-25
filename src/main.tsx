@@ -2,6 +2,9 @@ import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import './ui/styles.css';
 import { App } from './ui/App';
+import { applyTheme, loadTheme } from './ui/theme';
+
+applyTheme(loadTheme());
 import { initPersistence } from './state/persistence';
 import { engine } from './engine';
 import { store } from './state/store';

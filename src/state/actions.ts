@@ -6,6 +6,8 @@ import { DrumMachine } from '../instruments/DrumMachine';
 import { beatsPerBar } from '../sequencer/timing';
 import { snap } from '../model/theory';
 import { engine } from '../engine';
+import { applyCommands, type Command } from '../ai/commands';
+import { generateGroove, STYLES, type Style } from '../ai/generators';
 
 type HistoryOpt = { history?: boolean };
 
@@ -384,4 +386,50 @@ export function toast(message: string): void {
   store.setUi({ toast: message });
   clearTimeout(toastTimer);
   toastTimer = setTimeout(() => store.setUi({ toast: null }), 3200);
+}
+
+// ------------------------------------------------------------- AI producer
+
+/** Applies AI commands as one undoable step and shows them as a proposal. */
+export function propose(title: string, message: string, commands: Command[], source: 'generator' | 'claude', errors: string[] = []): void {
+  if (store.get().ui.proposal) acceptProposal();
+  if (!commands.length) {
+    toast(errors.length ? `Nothing usable in the proposal: ${errors[0]}` : 'The proposal was empty');
+    return;
+  }
+  store.checkpoint();
+  let changes: string[] = [];
+  store.updateProject((d) => void (changes = applyCommands(d, commands)), { history: false });
+  const p = store.getProject();
+  const ui = store.get().ui;
+  const sel = p.tracks.find((t) => t.id === ui.selectedTrackId) ?? p.tracks[0];
+  store.setUi({
+    proposal: { title, message, changes, errors, source, depth: store.historyDepth() },
+    selectedTrackId: sel?.id ?? null,
+    selectedClipId: sel?.clips[0]?.id ?? null,
+    selectedNoteIds: [],
+  });
+}
+
+export function acceptProposal(): void {
+  store.setUi({ proposal: null });
+}
+
+export function discardProposal(): void {
+  const pr = store.get().ui.proposal;
+  if (!pr) return;
+  store.setUi({ proposal: null });
+  if (store.historyDepth() === pr.depth) store.undo();
+  else toast('Kept the proposal because you edited it — use Undo to go back');
+}
+
+/** Starts a fresh project with a generated groove in the given style. */
+export function newFromStyle(style: Style): void {
+  engine.stop();
+  const p = createEmptyProject(`${STYLES.find((s) => s.id === style)!.label} sketch`);
+  p.tracks = [];
+  const g = generateGroove(p, style);
+  applyCommands(p, g.commands);
+  store.loadProject(p);
+  store.setUi({ producerStyle: style, proposal: null });
 }

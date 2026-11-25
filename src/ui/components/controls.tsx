@@ -103,10 +103,10 @@ export function Knob({ label, value, min, max, step, log, unit, defaultValue, si
         aria-valuemax={max}
         aria-valuenow={value}
       >
-        <path d={arc(a0, 135)} stroke="#2b2e35" strokeWidth={3.5} fill="none" strokeLinecap="round" />
-        {Math.abs(a - centre) > 0.5 && <path d={arc(Math.min(centre, a), Math.max(centre, a))} stroke={color} strokeWidth={3.5} fill="none" strokeLinecap="round" />}
-        <circle cx={c} cy={c} r={r - 6} fill="#1d1f25" stroke="#33363e" />
-        <line x1={c} y1={c} x2={ix} y2={iy} stroke="#e9eaee" strokeWidth={2} strokeLinecap="round" />
+        <path d={arc(a0, 135)} style={{ stroke: 'var(--knob-track)' }} strokeWidth={3.5} fill="none" strokeLinecap="round" />
+        {Math.abs(a - centre) > 0.5 && <path d={arc(Math.min(centre, a), Math.max(centre, a))} style={{ stroke: color }} strokeWidth={3.5} fill="none" strokeLinecap="round" />}
+        <circle cx={c} cy={c} r={r - 6} style={{ fill: 'var(--knob-face)', stroke: 'var(--knob-edge)' }} />
+        <line x1={c} y1={c} x2={ix} y2={iy} style={{ stroke: 'var(--knob-pointer)' }} strokeWidth={2} strokeLinecap="round" />
       </svg>
       <div className="knob-value">{format ? format(value) : formatValue(value, unit)}</div>
       <div className="knob-label">{label}</div>

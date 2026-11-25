@@ -257,7 +257,7 @@ export function PianoRoll({ track, clip, grid, chordTool, pxPerBeat }: Props) {
 
   const gridLines = useMemo(
     () => ({
-      backgroundImage: `linear-gradient(to right, rgba(255,255,255,0.13) 1px, transparent 1px), linear-gradient(to right, rgba(255,255,255,0.06) 1px, transparent 1px), linear-gradient(to right, rgba(255,255,255,0.025) 1px, transparent 1px)`,
+      backgroundImage: `linear-gradient(to right, var(--grid-bar) 1px, transparent 1px), linear-gradient(to right, var(--grid-beat) 1px, transparent 1px), linear-gradient(to right, var(--grid-sub) 1px, transparent 1px)`,
       backgroundSize: `${pxPerBeat * 4}px 100%, ${pxPerBeat}px 100%, ${pxPerBeat * grid}px 100%`,
     }),
     [pxPerBeat, grid],
@@ -335,7 +335,7 @@ export function PianoRoll({ track, clip, grid, chordTool, pxPerBeat }: Props) {
             <div
               key={n.id}
               className="pr-vel-bar"
-              style={{ left: n.start * pxPerBeat, height: `${n.velocity * 92}%`, background: selSet.has(n.id) ? '#fff' : track.color }}
+              style={{ left: n.start * pxPerBeat, height: `${n.velocity * 92}%`, background: selSet.has(n.id) ? 'var(--text)' : track.color }}
             />
           ))}
         </div>

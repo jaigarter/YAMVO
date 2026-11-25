@@ -19,12 +19,16 @@ export class TrackChain {
   private readonly high = new Tone.Filter({ type: 'highshelf', frequency: 4000, gain: 0 });
   private readonly comp = new Tone.Compressor({ threshold: -18, ratio: 3, attack: 0.005, release: 0.12, knee: 6 });
   private readonly channel = new Tone.Channel({ volume: 0, pan: 0 });
-  private readonly inserts = new InsertChain(this.input, this.channel);
+  /** Sidechain ducking gain, modulated by kick hits (see duckAt). */
+  private readonly duck = new Tone.Gain(1);
+  private readonly inserts = new InsertChain(this.input, this.duck);
+  private duckAmount = 0;
   private readonly reverbSend = new Tone.Gain(0);
   private readonly delaySend = new Tone.Gain(0);
   readonly meter = new Tone.Meter({ smoothing: 0.75 });
 
   constructor(master: Tone.InputNode, reverbBus: Tone.InputNode, delayBus: Tone.InputNode) {
+    this.duck.connect(this.channel);
     this.channel.connect(master);
     this.channel.connect(this.reverbSend);
     this.channel.connect(this.delaySend);
@@ -34,9 +38,12 @@ export class TrackChain {
   }
 
   apply(m: MixerSettings, audible: boolean): void {
-    this.channel.volume.value = m.volume <= -60 ? -Infinity : m.volume;
+    // Mute first: Tone's mute setter restores the previous volume when unmuting,
+    // so the fader value must be written afterwards (and -60 dB means silence).
+    const silent = !audible || m.volume <= -60;
+    this.channel.mute = silent;
+    if (!silent) this.channel.volume.value = m.volume;
     this.channel.pan.value = m.pan;
-    this.channel.mute = !audible;
     this.low.gain.value = m.eq.low;
     this.mid.gain.value = m.eq.mid;
     this.high.gain.value = m.eq.high;
@@ -52,8 +59,26 @@ export class TrackChain {
       Math.abs(m.eq.high) > 0.05 && this.high,
       m.comp.enabled && this.comp,
     ]);
+    this.duckAmount = m.sidechain ?? 0;
     this.reverbSend.gain.value = m.sends.reverb;
     this.delaySend.gain.value = m.sends.delay;
+  }
+
+  get sidechain(): number {
+    return this.duckAmount;
+  }
+
+  /**
+   * Ducks the track at a kick hit: fast dip, then a smooth recovery over about
+   * an eighth note — the classic house "pump".
+   */
+  duckAt(time: number, beatSeconds: number): void {
+    if (this.duckAmount <= 0) return;
+    // Automate the underlying AudioParam directly (sample-accurate, no wrapper bookkeeping).
+    const g = (this.duck.input as unknown as GainNode).gain;
+    const floor = 1 - Math.min(0.92, this.duckAmount);
+    g.setTargetAtTime(floor, time, 0.004);
+    g.setTargetAtTime(1, time + 0.03, beatSeconds * 0.22);
   }
 
   /** Post-fader level in dB (for meters). */
@@ -63,6 +88,6 @@ export class TrackChain {
   }
 
   dispose(): void {
-    for (const n of [this.input, this.filter, this.low, this.mid, this.high, this.comp, this.channel, this.reverbSend, this.delaySend, this.meter]) n.dispose();
+    for (const n of [this.input, this.duck, this.filter, this.low, this.mid, this.high, this.comp, this.channel, this.reverbSend, this.delaySend, this.meter]) n.dispose();
   }
 }

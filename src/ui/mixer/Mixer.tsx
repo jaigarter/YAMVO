@@ -78,11 +78,12 @@ function Strip({ track }: { track: Track }) {
           <span>Sends</span>
         </div>
         <div className="knobs">
-          <Knob label="Reverb" size={30} value={m.sends.reverb} min={0} max={1} step={0.01} color="#36cfc9" defaultValue={0} format={(v) => `${Math.round(v * 100)}`} onChange={(v) => set({ sends: { ...m.sends, reverb: v } })} />
-          <Knob label="Delay" size={30} value={m.sends.delay} min={0} max={1} step={0.01} color="#9254de" defaultValue={0} format={(v) => `${Math.round(v * 100)}`} onChange={(v) => set({ sends: { ...m.sends, delay: v } })} />
+          <Knob label="Reverb" size={30} value={m.sends.reverb} min={0} max={1} step={0.01} color="#3cc0c9" defaultValue={0} format={(v) => `${Math.round(v * 100)}`} onChange={(v) => set({ sends: { ...m.sends, reverb: v } })} />
+          <Knob label="Delay" size={30} value={m.sends.delay} min={0} max={1} step={0.01} color="#a37cf0" defaultValue={0} format={(v) => `${Math.round(v * 100)}`} onChange={(v) => set({ sends: { ...m.sends, delay: v } })} />
         </div>
       </div>
 
+      <Knob label="Pump" size={30} value={m.sidechain ?? 0} min={0} max={1} step={0.01} color="var(--accent)" defaultValue={0} format={(v) => `${Math.round(v * 100)}`} onChange={(v) => set({ sidechain: v })} />
       <Knob label="Pan" size={34} value={m.pan} min={-1} max={1} step={0.01} bipolar defaultValue={0} format={panFmt} onChange={(v) => set({ pan: v })} />
 
       <div className="fader-wrap">

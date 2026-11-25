@@ -8,8 +8,7 @@ import { meterHeight, useFrame } from '../components/animation';
 import { TRACK_COLORS } from '../../model/factory';
 
 function instrumentLabel(t: Track): string {
-  if (t.instrument.type === 'sampler') return 'Sampler';
-  return getPreset(t.instrument.presetId)?.name ?? t.instrument.type;
+  return getPreset(t.instrument.presetId)?.name ?? (t.instrument.type === 'sampler' ? 'Sampler' : t.instrument.type);
 }
 
 export function TrackHeader({ track, selected }: { track: Track; selected: boolean }) {

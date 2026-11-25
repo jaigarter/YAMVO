@@ -6,6 +6,8 @@ import { PianoRoll, type ChordTool } from './PianoRoll';
 import { beatsPerBar, songLengthBeats } from '../../sequencer/timing';
 import { Toggle } from '../components/controls';
 import { setFocusArea } from './focus';
+import { generateForTrack } from '../../ai/generators';
+import { SparkIcon } from '../components/Icons';
 
 const GRIDS: { v: number; label: string }[] = [
   { v: 1, label: '1/4' },
@@ -130,6 +132,16 @@ export function ClipEditor() {
           </label>
         )}
         <Toggle label="Swing" on={track.swing} onChange={(v) => A.setTrackSwing(track.id, v)} />
+        <button
+          className="btn small accent"
+          onClick={() => {
+            const g = generateForTrack(store.getProject(), track, store.get().ui.producerStyle);
+            A.propose(g.title, g.message, g.commands, 'generator');
+          }}
+          title="Write a fresh pattern for this track in the current Producer style — you can keep or discard it"
+        >
+          <SparkIcon size={12} /> New idea
+        </button>
         <span className="grow" />
         {!showSteps && (
           <div className="seg" title="Horizontal zoom">

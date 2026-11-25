@@ -13,12 +13,14 @@ npm run dev        # http://localhost:5173
 
 Open the app, press **Space** (or ▶) and the 16-bar UK Garage demo plays. *Projects → New empty project* starts from scratch.
 
-## What works today (MVP)
+## What works today
 
 - **Studio** — multitrack timeline with looping clips, loop region, BPM, swing (MPC-style), time signature, key/scale.
 - **Step sequencer** for drums (paint, accents) and **piano roll** for everything (draw, move, resize, velocity lane, marquee, scale highlighting, diatonic chord drawing, quantize, undo/redo).
 - **Instruments** — 5 synthesized drum kits (UKG 2-step, 909, 808, Deep House, Speed Garage) with 30 voices; 24 bass/keys/synth presets (sub, garage bass, Reese, organ bass, FM e-pianos, drawbar organs, chord stabs, pads, plucks, leads, atmosphere); a sampler for your own sounds. Every parameter is editable.
 - **Mixer** — volume, pan, 3-band EQ, filter, compressor, reverb/delay sends, master bus with glue compression and limiter. All real DSP.
+- **✦ Producer** — one-click genre generators (free, offline) and Claude on claude.ai (uses your account): grooves, basslines, chords, hooks, song structure, proposed as Keep/Discard.
+- **Sounds** — 52 instruments: synthesized drums/basses/synths plus sampled grand piano, Rhodes, house piano, mallets, guitars, strings, brass, sax, choirs and world percussion (see CREDITS.md).
 - **Library** — searchable by name, type and genre; preview; favourites; import your own audio; drag sounds onto drum pads.
 - **Play live** with a MIDI controller (Web MIDI) or the computer keyboard (A–; row, Z/X octave).
 - **Save/restore** automatically in IndexedDB; **export WAV** (16/24-bit) rendered offline with the same engine you hear.

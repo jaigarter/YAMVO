@@ -3,9 +3,18 @@ import { store, useStore } from '../state/store';
 import * as A from '../state/actions';
 import { engine } from '../engine';
 import { downloadBlob, exportWav } from '../export/render';
+import { zipFiles } from '../export/zip';
 
 /** Hosted preview (claude.ai artifact): the viewer blocks downloads started by the page. */
 const PREVIEW_BUILD = import.meta.env.MODE === 'artifact';
+
+interface Downloads {
+  save(req: { filename: string; data: Uint8Array | Blob }): Promise<unknown>;
+}
+async function getDownloads(): Promise<Downloads | null> {
+  const rt = (window as unknown as { claude?: { use(n: string): Promise<unknown> } }).claude;
+  return rt?.use ? ((await rt.use('downloads').catch(() => null)) as Downloads | null) : null;
+}
 
 export function ExportModal({ onClose }: { onClose: () => void }) {
   const project = useStore((s) => s.project);
@@ -22,11 +31,27 @@ export function ExportModal({ onClose }: { onClose: () => void }) {
     try {
       const blob = await exportWav(p, { ...r, tail: tail ? 2.5 : 0 }, bits);
       const safe = p.name.replace(/[^\w\- ]+/g, '').trim() || 'groove';
-      downloadBlob(blob, `${safe} ${p.bpm}bpm.wav`);
-      A.toast(`Exported ${(blob.size / 1024 / 1024).toFixed(1)} MB WAV`);
+      const filename = `${safe} ${p.bpm}bpm.wav`;
+      if (PREVIEW_BUILD) {
+        // claude.ai saves files through the downloads capability; WAV is not an
+        // allowed type there, so it is wrapped in a .zip.
+        const downloads = await getDownloads();
+        if (!downloads) throw new Error('Saving files is not available in this view');
+        const zip = zipFiles([{ name: filename, data: new Uint8Array(await blob.arrayBuffer()) }]);
+        store.setUi({ busy: null });
+        await downloads.save({ filename: `${safe} ${p.bpm}bpm.zip`, data: zip });
+        A.toast('Saved — the WAV is inside the .zip');
+      } else {
+        downloadBlob(blob, filename);
+        A.toast(`Exported ${(blob.size / 1024 / 1024).toFixed(1)} MB WAV`);
+      }
     } catch (err) {
-      console.error(err);
-      A.toast('Export failed — see console');
+      const e = err as { code?: string; message?: string };
+      if (e.code === 'declined') A.toast('Export cancelled');
+      else {
+        console.error(err);
+        A.toast(`Export failed: ${e.message ?? 'unknown error'}`);
+      }
     } finally {
       store.setUi({ busy: null });
     }
@@ -75,15 +100,15 @@ export function ExportModal({ onClose }: { onClose: () => void }) {
           The export is rendered offline with exactly the same instruments, mixer and effects you hear while playing.
         </p>
         {PREVIEW_BUILD && (
-          <p style={{ color: 'var(--solo)', fontSize: 12, lineHeight: 1.5 }}>
-            This hosted preview cannot save files to your device. To export WAV, run GROOVE LAB locally (npm run dev) and open it in your browser.
+          <p style={{ color: 'var(--text-2)', fontSize: 12, lineHeight: 1.5 }}>
+            On claude.ai the WAV is delivered inside a .zip file, and you will be asked to confirm the download.
           </p>
         )}
         <div className="actions">
           <button className="btn" onClick={onClose}>
             Cancel
           </button>
-          <button className="btn primary" onClick={() => void run()} disabled={PREVIEW_BUILD}>
+          <button className="btn primary" onClick={() => void run()}>
             Render &amp; download
           </button>
         </div>

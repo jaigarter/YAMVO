@@ -153,6 +153,39 @@ try {
   });
   check('mixer EQ processes audio', eqDiff.b < eqDiff.a * 0.7, `rms ${eqDiff.a.toFixed(4)} → ${eqDiff.b.toFixed(4)} with low −24 dB`);
 
+
+  // AI Producer: generate a full groove, discard it, generate again and keep it.
+  await page.click('.nav button:has-text("Producer")');
+  await page.waitForSelector('.hero-action');
+  const beforeGroove = await page.evaluate(() => JSON.stringify(window.__grooveLab.store.getProject().tracks.map((t) => t.clips.map((c) => c.notes.length))));
+  await page.click('.chip:has-text("Deep House")');
+  await page.click('.hero-action');
+  await page.waitForSelector('.proposal');
+  const proposed = await page.evaluate(() => ({ bpm: window.__grooveLab.store.getProject().bpm, tracks: window.__grooveLab.store.getProject().tracks.length }));
+  check('Producer proposes a Deep House groove', proposed.bpm === 121, `bpm=${proposed.bpm} tracks=${proposed.tracks}`);
+  await shot('producer-proposal');
+  await page.click('.proposal button:has-text("Discard")');
+  const afterDiscard = await page.evaluate(() => JSON.stringify(window.__grooveLab.store.getProject().tracks.map((t) => t.clips.map((c) => c.notes.length))));
+  check('Discard restores the project', afterDiscard === beforeGroove);
+  await page.click('.part-card:has-text("Bassline")');
+  await page.click('.proposal button:has-text("Keep")');
+  const kept = await page.evaluate(() => !window.__grooveLab.store.get().ui.proposal);
+  check('Keep accepts the proposal', kept);
+  // Sidechain really ducks: render chords with and without pump.
+  const pump = await page.evaluate(async () => {
+    const g = window.__grooveLab;
+    const base = structuredClone(g.store.getProject());
+    const chords = base.tracks.find((t) => t.name === 'Chords');
+    base.tracks.forEach((t) => (t.mixer.solo = t === chords || t.kind === 'drums'));
+    base.tracks.filter((t) => t.kind === 'drums').forEach((t) => (t.mixer.volume = -60));
+    chords.mixer.sidechain = 0;
+    const a = g.render.peakAndRms(await g.render.renderProject(base, { startBar: 0, endBar: 2, tail: 0 }));
+    chords.mixer.sidechain = 1;
+    const b = g.render.peakAndRms(await g.render.renderProject(base, { startBar: 0, endBar: 2, tail: 0 }));
+    return { a: a.rms, b: b.rms };
+  });
+  check('sidechain pump ducks the track', pump.b < pump.a * 0.85, `rms ${pump.a.toFixed(4)} → ${pump.b.toFixed(4)}`);
+
   // WAV export through the dialog.
   await page.click('.nav button:has-text("Studio")');
   await page.click('button:has-text("Export")');

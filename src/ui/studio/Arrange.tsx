@@ -28,7 +28,7 @@ function ClipPreview({ clip, track, zoom }: { clip: Clip; track: Track; zoom: nu
       if (x >= clip.length * zoom) continue;
       const y = isDrums ? ((hi - n.pitch) / span) * (h - 3) : ((hi - n.pitch) / span) * (h - 3);
       const w = Math.max(1.5, Math.min(n.duration, clip.length - (r * clip.loopLength + n.start)) * zoom - 1);
-      rects.push(<rect key={`${r}-${n.id}`} x={x} y={y} width={isDrums ? 2 : w} height={2.5} rx={1} fill="rgba(0,0,0,0.6)" />);
+      rects.push(<rect key={`${r}-${n.id}`} x={x} y={y} width={isDrums ? 2 : w} height={2.5} rx={1} fill="rgba(0,0,0,0.5)" />);
     }
   }
   return (
@@ -67,7 +67,7 @@ function ClipView({ clip, track, zoom, selected, bpb }: { clip: Clip; track: Tra
       onDoubleClick={(e) => e.stopPropagation()}
       title={`${clip.name} — drag to move (Alt: fine), drag edge to resize, ⌘D duplicate, Delete remove`}
     >
-      <div className="clip-head" style={{ background: 'rgba(255,255,255,0.25)' }}>{clip.name}</div>
+      <div className="clip-head" style={{ background: 'rgba(255,255,255,0.35)' }}>{clip.name}</div>
       <ClipPreview clip={clip} track={track} zoom={zoom} />
       {reps.map((b) => (
         <div key={b} className="clip-repeat" style={{ left: b * zoom }} />
@@ -159,7 +159,7 @@ export function Arrange() {
 
   const gridBg = useMemo(
     () => ({
-      backgroundImage: `linear-gradient(to right, var(--line-2) 1px, transparent 1px), linear-gradient(to right, rgba(255,255,255,0.035) 1px, transparent 1px)`,
+      backgroundImage: `linear-gradient(to right, var(--grid-bar) 1px, transparent 1px), linear-gradient(to right, var(--grid-beat) 1px, transparent 1px)`,
       backgroundSize: `${barW}px 100%, ${zoom}px 100%`,
     }),
     [barW, zoom],
@@ -221,7 +221,7 @@ export function Arrange() {
               ))}
             </div>
           ))}
-          <div style={{ position: 'absolute', left: lengthBars * barW, top: 0, bottom: 0, width: 200, background: 'rgba(0,0,0,0.35)', pointerEvents: 'none' }} />
+          <div style={{ position: 'absolute', left: lengthBars * barW, top: 0, bottom: 0, width: 200, background: 'var(--dim)', pointerEvents: 'none' }} />
           <Playhead zoom={zoom} />
           {tracks.length === 0 && (
             <div className="empty" style={{ position: 'absolute', inset: 0, height: 200 }}>

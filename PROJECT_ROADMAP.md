@@ -161,21 +161,28 @@ Las baterías también son notas (mapeo General MIDI: 36 kick, 38 snare, 39 clap
 - [x] Web MIDI + teclado QWERTY
 - [x] Biblioteca buscable con licencias, importación de samples propios
 
-### Fase 2 — Biblioteca de sonidos profesional (§9)
-- Inventario y aprobación (`docs/SOUND_LIBRARY.md`)
-- Pipeline: SoundFont/SFZ → multisamples comprimidos (`scripts/`)
-- Piano acústico, Rhodes, House Piano, órgano, pads, vocal chops
-- Colecciones y favoritos
+### Fase 2 — Biblioteca de sonidos profesional (§9) ✅
+- [x] Inventario y aprobación (`docs/SOUND_LIBRARY.md`)
+- [x] Pipeline SoundFont/SFZ → sprites MP3 por instrumento (`scripts/sound-packs/build_packs.py`)
+- [x] Piano de cola, Rhodes (3 capas de velocidad), House Piano, mallets, guitarras, cuerdas, metales, coros, percusión
+- [x] Favoritos
+- [ ] Vocal chops CC0 (Freesound: red + clave API)
+
+### Fase 2b — Diseño y productor ✅
+- [x] Tema claro estilo Apple con modo oscuro opcional
+- [x] AI Producer: generadores locales gratuitos + Claude (capacidad `sample` en claude.ai) con propuestas Keep/Discard
+- [x] Sidechain (pump) por pista, plantillas por género, estructura de canción automática
+- [x] Export WAV en el artifact (zip vía capacidad `downloads`)
 
 ### Fase 3 — Arreglo y edición avanzada
 - Grabación MIDI en clips, cuantización, automatización de parámetros
 - Secciones (intro/drop/break), duplicar/variar, markers
 - Sidechain (compresión del bajo con el kick), bus de grupos
 
-### Fase 4 — AI Producer
-- Claude API → comandos JSON (`src/ai/`), validación de esquema
-- Propuestas aceptables/rechazables por elemento, diff visual, undo
-- Generación de grooves, bajos, acordes, variaciones y estructura
+### Fase 4 — AI Producer avanzado
+- Claude con clave API propia en la versión local
+- Propuestas parciales (aceptar pista a pista), diff visual de notas
+- Variaciones, fills y transiciones automáticas; sugerencias de mezcla
 
 ### Fase 5 — Pulido
 - Rendimiento (AudioWorklet donde aporte), PWA offline, exportación de stems/MIDI

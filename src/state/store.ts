@@ -2,7 +2,17 @@ import { useSyncExternalStore } from 'react';
 import type { Project } from '../model/types';
 import { createDemoProject } from '../model/factory';
 
-export type View = 'studio' | 'instruments' | 'mixer' | 'library';
+export type View = 'studio' | 'producer' | 'instruments' | 'mixer' | 'library';
+
+export interface PendingProposal {
+  title: string;
+  message: string;
+  changes: string[];
+  errors: string[];
+  source: 'generator' | 'claude';
+  /** Undo depth right after applying; discard only undoes if nothing changed since. */
+  depth: number;
+}
 
 export interface UiState {
   view: View;
@@ -18,6 +28,9 @@ export interface UiState {
   /** Rendering / export modal. */
   busy: string | null;
   toast: string | null;
+  /** AI change waiting for Keep / Discard. */
+  proposal: PendingProposal | null;
+  producerStyle: import('../ai/generators').Style;
 }
 
 export interface AppState {
@@ -54,6 +67,8 @@ class Store {
         armedTrackId: null,
         busy: null,
         toast: null,
+        proposal: null,
+        producerStyle: 'ukg',
       },
       playing: false,
       saveState: 'saved',
@@ -101,6 +116,10 @@ class Store {
     this.emit(prev);
   }
 
+  historyDepth(): number {
+    return this.undoStack.length;
+  }
+
   /** Records the current project as an undo point. */
   checkpoint(): void {
     this.pushUndo(this.state.project);
@@ -144,7 +163,7 @@ class Store {
       ...this.state,
       project,
       saveState: 'saved',
-      ui: { ...this.state.ui, selectedTrackId: t?.id ?? null, selectedClipId: t?.clips[0]?.id ?? null, selectedNoteIds: [] },
+      ui: { ...this.state.ui, selectedTrackId: t?.id ?? null, selectedClipId: t?.clips[0]?.id ?? null, selectedNoteIds: [], proposal: null },
       ...this.historyFlags(),
     };
     this.emit(prev);

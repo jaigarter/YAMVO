@@ -60,6 +60,8 @@ export interface MixerSettings {
   comp: { enabled: boolean; threshold: number; ratio: number };
   /** 0..1 send levels to the shared reverb/delay buses. */
   sends: { reverb: number; delay: number };
+  /** 0..1 kick-triggered ducking ("pumping"). Optional for older projects. */
+  sidechain?: number;
 }
 
 export type InstrumentType = 'drum-machine' | 'synth' | 'organ' | 'sampler';

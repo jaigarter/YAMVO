@@ -53,7 +53,7 @@ export function StepSequencer({ track, clip }: { track: Track; clip: Clip }) {
   };
 
   return (
-    <div className="steps">
+    <div className="steps" style={{ ['--track' as string]: track.color }}>
       {pageCount > 1 && (
         <div style={{ display: 'flex', gap: 8, alignItems: 'center', marginBottom: 10, marginLeft: 162 }}>
           <div className="seg">

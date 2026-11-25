@@ -6,6 +6,8 @@ import { Studio } from './studio/Studio';
 import { Instruments } from './instruments/Instruments';
 import { Mixer } from './mixer/Mixer';
 import { Library } from './library/Library';
+import { Producer } from './producer/Producer';
+import { ProposalBar } from './ProposalBar';
 import { initComputerKeyboard } from '../midi/input';
 
 function isTyping(e: KeyboardEvent) {
@@ -47,10 +49,12 @@ export function App() {
       <TopBar />
       <main className="main">
         {view === 'studio' && <Studio />}
+        {view === 'producer' && <Producer />}
         {view === 'instruments' && <Instruments />}
         {view === 'mixer' && <Mixer />}
         {view === 'library' && <Library />}
       </main>
+      <ProposalBar />
       {toast && <div className="toast" role="status">{toast}</div>}
       {busy && (
         <div className="busy" role="alertdialog" aria-label={busy}>

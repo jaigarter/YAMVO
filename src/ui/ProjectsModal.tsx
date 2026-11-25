@@ -5,6 +5,7 @@ import { deleteProject, listProjects, loadProject, type ProjectSummary } from '.
 import { saveNow } from '../state/persistence';
 import { TrashIcon } from './components/Icons';
 import { ConfirmButton } from './components/ConfirmButton';
+import { STYLES } from '../ai/generators';
 
 export function ProjectsModal({ onClose }: { onClose: () => void }) {
   const [projects, setProjects] = useState<ProjectSummary[] | null>(null);
@@ -35,6 +36,23 @@ export function ProjectsModal({ onClose }: { onClose: () => void }) {
       <div className="backdrop" onClick={onClose} />
       <div className="modal" role="dialog" aria-label="Projects">
         <h3>Projects</h3>
+        <div className="menu-label">Start from a style — a full groove is generated for you</div>
+        <div className="row" style={{ flexWrap: 'wrap' }}>
+          {STYLES.map((st) => (
+            <button
+              key={st.id}
+              className="btn"
+              onClick={async () => {
+                await saveNow();
+                A.newFromStyle(st.id);
+                await saveNow();
+                onClose();
+              }}
+            >
+              {st.label}
+            </button>
+          ))}
+        </div>
         <div className="row">
           <button className="btn primary" onClick={() => void create('empty')}>
             New empty project

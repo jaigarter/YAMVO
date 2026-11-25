@@ -38,3 +38,16 @@ describe('wav encoder', () => {
     expect(rms).toBeGreaterThan(0.3);
   });
 });
+
+import { crc32, zipFiles } from '../export/zip';
+describe('zip', () => {
+  it('computes the standard CRC-32', () => {
+    expect(crc32(new TextEncoder().encode('123456789')).toString(16)).toBe('cbf43926');
+  });
+  it('writes a stored zip with central directory', () => {
+    const z = zipFiles([{ name: 'a.wav', data: new Uint8Array([1, 2, 3]) }]);
+    const v = new DataView(z.buffer);
+    expect(v.getUint32(0, true)).toBe(0x04034b50);
+    expect(v.getUint32(z.length - 22, true)).toBe(0x06054b50);
+  });
+});

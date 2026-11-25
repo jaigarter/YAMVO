@@ -1,17 +1,20 @@
 import { useCallback, useRef, useState } from 'react';
+import { createPortal } from 'react-dom';
 import { store, useStore, type View } from '../state/store';
 import * as A from '../state/actions';
 import { DragNumber } from './components/controls';
-import { LoopIcon, PlayIcon, RedoIcon, StopIcon, UndoIcon, FolderIcon, DownloadIcon } from './components/Icons';
+import { LoopIcon, PlayIcon, RedoIcon, StopIcon, UndoIcon, FolderIcon, DownloadIcon, MoonIcon, SunIcon } from './components/Icons';
 import { useFrame } from './components/animation';
 import { PITCH_CLASSES, SCALES } from '../model/theory';
 import { beatsPerBar } from '../sequencer/timing';
 import type { PitchClass, ScaleName } from '../model/types';
 import { ProjectsModal } from './ProjectsModal';
 import { ExportModal } from './ExportModal';
+import { applyTheme, loadTheme, type Theme } from './theme';
 
 const VIEWS: { id: View; label: string }[] = [
   { id: 'studio', label: 'Studio' },
+  { id: 'producer', label: '✦ Producer' },
   { id: 'instruments', label: 'Instruments' },
   { id: 'mixer', label: 'Mixer' },
   { id: 'library', label: 'Library' },
@@ -50,6 +53,7 @@ export function TopBar() {
   const name = useStore((s) => s.project.name);
   const [modal, setModal] = useState<'projects' | 'export' | null>(null);
   const [renaming, setRenaming] = useState(false);
+  const [theme, setTheme] = useState<Theme>(loadTheme);
 
   return (
     <header className="topbar">
@@ -144,13 +148,26 @@ export function TopBar() {
             <FolderIcon /> {name}
           </button>
         )}
+        <button
+          className="tbtn"
+          onClick={() => {
+            const t = theme === 'light' ? 'dark' : 'light';
+            applyTheme(t);
+            setTheme(t);
+          }}
+          title={theme === 'light' ? 'Dark mode' : 'Light mode'}
+          aria-label={theme === 'light' ? 'Switch to dark mode' : 'Switch to light mode'}
+        >
+          {theme === 'light' ? <MoonIcon /> : <SunIcon />}
+        </button>
         <span className="save-state">{{ saved: 'Saved', saving: 'Saving…', dirty: 'Edited', error: 'Not saved' }[saveState]}</span>
         <button className="btn primary" onClick={() => setModal('export')}>
           <DownloadIcon /> Export
         </button>
       </div>
-      {modal === 'projects' && <ProjectsModal onClose={() => setModal(null)} />}
-      {modal === 'export' && <ExportModal onClose={() => setModal(null)} />}
+      {/* Portal: the blurred top bar is its own stacking context and would trap fixed dialogs. */}
+      {modal === 'projects' && createPortal(<ProjectsModal onClose={() => setModal(null)} />, document.body)}
+      {modal === 'export' && createPortal(<ExportModal onClose={() => setModal(null)} />, document.body)}
     </header>
   );
 }

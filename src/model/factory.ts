@@ -8,7 +8,8 @@ export function uid(prefix = ''): string {
   return `${prefix}${Date.now().toString(36)}${Math.random().toString(36).slice(2, 7)}${counter.toString(36)}`;
 }
 
-export const TRACK_COLORS = ['#ff7a45', '#ffc53d', '#73d13d', '#36cfc9', '#4096ff', '#9254de', '#f759ab', '#ff4d4f'];
+/** Soft, Logic-like region colours that read well on light and dark backgrounds. */
+export const TRACK_COLORS = ['#ff9466', '#ffc94d', '#7dd48f', '#62cdd4', '#7aa2ff', '#a994ff', '#ff94c8', '#ff8080'];
 
 export function defaultMixer(overrides: Partial<MixerSettings> = {}): MixerSettings {
   return {
@@ -20,6 +21,7 @@ export function defaultMixer(overrides: Partial<MixerSettings> = {}): MixerSetti
     filter: { enabled: false, type: 'lowpass', cutoff: 8000, q: 0.7 },
     comp: { enabled: false, threshold: -18, ratio: 3 },
     sends: { reverb: 0, delay: 0 },
+    sidechain: 0,
     ...overrides,
   };
 }

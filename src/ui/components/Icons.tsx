@@ -27,3 +27,6 @@ export const UpIcon = ({ size = 12 }: P) => svg(size, <path d="M6 15l6-6 6 6" />
 export const DownIcon = ({ size = 12 }: P) => svg(size, <path d="M6 9l6 6 6-6" />);
 export const UploadIcon = ({ size = 14 }: P) => svg(size, <><path d="M12 21V9" /><path d="M7 14l5-5 5 5" /><path d="M5 3h14" /></>);
 export const MetroIcon = ({ size = 14 }: P) => svg(size, <><path d="M7 21L10 3h4l3 18z" /><path d="M12 15l6-8" /></>);
+export const MoonIcon = ({ size = 15 }: P) => svg(size, <path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5z" />);
+export const SunIcon = ({ size = 15 }: P) => svg(size, <><circle cx="12" cy="12" r="4" /><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4" /></>);
+export const SparkIcon = ({ size = 15 }: P) => svg(size, <path d="M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8z" />);

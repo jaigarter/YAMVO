@@ -6,6 +6,8 @@ import { TrackChain } from './TrackChain';
 import { audibleTracks, collectEvents } from '../sequencer/events';
 import { STEP, secondsPerBeat } from '../sequencer/timing';
 
+const KICK_NOTE = 36;
+
 const NOTE_VALUE_BEATS: Record<MasterSettings['delay']['time'], number> = {
   '16n': 0.25,
   '8n': 0.5,
@@ -108,10 +110,19 @@ export class ProjectRenderer {
   /** Schedules every note starting in [beat, beat + STEP) at audio time `time`. */
   scheduleStep(project: Project, beat: number, time: number): void {
     const spb = secondsPerBeat(project.bpm);
-    for (const ev of collectEvents(project, beat, beat + STEP)) {
+    const events = collectEvents(project, beat, beat + STEP);
+    for (const ev of events) {
       const nodes = this.tracks.get(ev.trackId);
       if (!nodes) continue;
       nodes.instrument.trigger(ev.pitch, ev.velocity, time + ev.offset * spb, ev.duration * spb);
+    }
+    // Sidechain: every kick on a drum track ducks the tracks that ask for it.
+    const kicks = events.filter((ev) => ev.pitch === KICK_NOTE && this.tracks.get(ev.trackId)?.type === 'drum-machine');
+    if (kicks.length) {
+      for (const nodes of this.tracks.values()) {
+        if (nodes.chain.sidechain <= 0) continue;
+        for (const k of kicks) nodes.chain.duckAt(time + k.offset * spb, spb);
+      }
     }
   }
 
