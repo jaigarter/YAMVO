@@ -11,12 +11,14 @@ import { LANE_ORDER } from '../instruments/drumKits';
 export interface MidiStatus {
   supported: boolean;
   enabled: boolean;
+  /** Set when the browser or the embedding page refused MIDI access. */
+  error: string | null;
   devices: string[];
   octave: number;
   lastNote: number | null;
 }
 
-let status: MidiStatus = { supported: typeof navigator !== 'undefined' && 'requestMIDIAccess' in navigator, enabled: false, devices: [], octave: 4, lastNote: null };
+let status: MidiStatus = { supported: typeof navigator !== 'undefined' && 'requestMIDIAccess' in navigator, enabled: false, error: null, devices: [], octave: 4, lastNote: null };
 const listeners = new Set<() => void>();
 const setStatus = (patch: Partial<MidiStatus>) => {
   status = { ...status, ...patch };
@@ -81,7 +83,7 @@ export async function enableMidi(): Promise<void> {
     access.onstatechange = bind;
   } catch (err) {
     console.warn('[midi] access denied', err);
-    setStatus({ enabled: false });
+    setStatus({ enabled: false, error: 'MIDI access was blocked by the browser or this page. Use the computer keyboard, or open GROOVE LAB directly in Chrome/Edge.' });
   }
 }
 

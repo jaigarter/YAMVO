@@ -30,7 +30,7 @@ export function Studio() {
 
   return (
     <div className="studio" ref={ref}>
-      <div style={{ minHeight: 0, display: 'grid' }} onPointerDown={() => setFocusArea('timeline')}>
+      <div style={{ minHeight: 0, minWidth: 0, display: 'grid', gridTemplateColumns: 'minmax(0, 1fr)' }} onPointerDown={() => setFocusArea('timeline')}>
         <Arrange />
       </div>
       <div

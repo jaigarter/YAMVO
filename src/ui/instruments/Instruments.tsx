@@ -160,7 +160,9 @@ export function Instruments() {
         <p style={{ color: 'var(--text-3)', fontSize: 12, marginTop: 10 }}>
           Play with the computer keyboard (A–; row, W/E/T/Y/U/O/P for sharps, Z/X octave {midi.octave}) or a MIDI controller.{' '}
           {midi.supported ? (
-            midi.enabled ? (
+            midi.error ? (
+              <span style={{ color: 'var(--danger)' }}>{midi.error}</span>
+            ) : midi.enabled ? (
               <span>MIDI: {midi.devices.length ? midi.devices.join(', ') : 'no devices connected'}.</span>
             ) : (
               <button className="btn small" onClick={() => void enableMidi()}>

@@ -4,6 +4,7 @@ import * as A from '../state/actions';
 import { deleteProject, listProjects, loadProject, type ProjectSummary } from '../storage/projects';
 import { saveNow } from '../state/persistence';
 import { TrashIcon } from './components/Icons';
+import { ConfirmButton } from './components/ConfirmButton';
 
 export function ProjectsModal({ onClose }: { onClose: () => void }) {
   const [projects, setProjects] = useState<ProjectSummary[] | null>(null);
@@ -60,17 +61,15 @@ export function ProjectsModal({ onClose }: { onClose: () => void }) {
                   <button className="btn small" onClick={() => void open(p.id)}>
                     Open
                   </button>
-                  <button
-                    className="btn small ghost danger"
-                    aria-label={`Delete ${p.name}`}
-                    onClick={async () => {
-                      if (!confirm(`Delete "${p.name}"? This cannot be undone.`)) return;
+                  <ConfirmButton
+                    label={`Delete ${p.name}`}
+                    onConfirm={async () => {
                       await deleteProject(p.id);
                       void refresh();
                     }}
                   >
                     <TrashIcon />
-                  </button>
+                  </ConfirmButton>
                 </>
               )}
             </div>

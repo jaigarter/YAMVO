@@ -4,6 +4,9 @@ import * as A from '../state/actions';
 import { engine } from '../engine';
 import { downloadBlob, exportWav } from '../export/render';
 
+/** Hosted preview (claude.ai artifact): the viewer blocks downloads started by the page. */
+const PREVIEW_BUILD = import.meta.env.MODE === 'artifact';
+
 export function ExportModal({ onClose }: { onClose: () => void }) {
   const project = useStore((s) => s.project);
   const [range, setRange] = useState<'loop' | 'song'>(project.loop.enabled ? 'loop' : 'song');
@@ -71,11 +74,16 @@ export function ExportModal({ onClose }: { onClose: () => void }) {
         <p style={{ color: 'var(--text-3)', fontSize: 12, lineHeight: 1.5 }}>
           The export is rendered offline with exactly the same instruments, mixer and effects you hear while playing.
         </p>
+        {PREVIEW_BUILD && (
+          <p style={{ color: 'var(--solo)', fontSize: 12, lineHeight: 1.5 }}>
+            This hosted preview cannot save files to your device. To export WAV, run GROOVE LAB locally (npm run dev) and open it in your browser.
+          </p>
+        )}
         <div className="actions">
           <button className="btn" onClick={onClose}>
             Cancel
           </button>
-          <button className="btn primary" onClick={() => void run()}>
+          <button className="btn primary" onClick={() => void run()} disabled={PREVIEW_BUILD}>
             Render &amp; download
           </button>
         </div>

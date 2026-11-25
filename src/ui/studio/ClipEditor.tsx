@@ -30,6 +30,7 @@ export function ClipEditor() {
   const trackId = useStore((s) => s.ui.selectedTrackId);
   const clipId = useStore((s) => s.ui.selectedClipId);
   const grid = useStore((s) => s.ui.grid);
+  const selectedNotes = useStore((s) => s.ui.selectedNoteIds);
   const [drumView, setDrumView] = useState<'steps' | 'roll'>('steps');
   const [chordTool, setChordTool] = useState<ChordTool>('off');
   const [pxPerBeat, setPx] = useState(72);
@@ -154,6 +155,11 @@ export function ClipEditor() {
         >
           Repeat to end
         </button>
+        {!showSteps && selectedNotes.length > 0 && (
+          <button className="btn small" onClick={() => A.deleteNotes(clip.id, selectedNotes)} title="Delete selected notes (Delete key)">
+            Delete {selectedNotes.length} note{selectedNotes.length > 1 ? 's' : ''}
+          </button>
+        )}
         <button className="btn small ghost danger" onClick={() => A.clearClip(clip.id)} disabled={!clip.notes.length}>
           Clear
         </button>

@@ -7,6 +7,7 @@ import { dbGet, dbPut } from '../../storage/db';
 import * as A from '../../state/actions';
 import { store, useStore } from '../../state/store';
 import { PlayIcon, PlusIcon, TrashIcon, UploadIcon } from '../components/Icons';
+import { ConfirmButton } from '../components/ConfirmButton';
 import { SAMPLE_DRAG_TYPE } from '../studio/StepSequencer';
 import { createTrack } from '../../model/factory';
 import * as Tone from 'tone';
@@ -202,17 +203,15 @@ export function Library() {
                   <PlusIcon size={11} /> {it.kind === 'preset' ? 'New track' : 'Sampler track'}
                 </button>
                 {it.category === 'Imported' && (
-                  <button
-                    className="btn small ghost danger"
-                    aria-label={`Delete ${it.name}`}
-                    onClick={async () => {
-                      if (!confirm(`Delete “${it.name}” from your library?`)) return;
+                  <ConfirmButton
+                    label={`Delete ${it.name}`}
+                    onConfirm={async () => {
                       await deleteUserSample(it.id);
                       setUser(await listUserSamples());
                     }}
                   >
                     <TrashIcon />
-                  </button>
+                  </ConfirmButton>
                 )}
               </div>
             </div>
