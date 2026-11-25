@@ -1,6 +1,9 @@
 import type { DrumLaneConfig } from '../model/types';
 import type { DrumVoiceId } from './drumSynthesis';
 
+/** A lane sound: a synthesized voice id, or a sampled one-shot `pack:<pack>/<zone>`. */
+export type KitSound = DrumVoiceId | `pack:${string}`;
+
 /** General-MIDI drum notes used for the eight lanes. */
 export const LANE_NOTES = {
   kick: 36,
@@ -21,44 +24,48 @@ export interface DrumKit {
   name: string;
   description: string;
   tags: string[];
-  voices: Record<keyof typeof LANE_NOTES, DrumVoiceId>;
+  voices: Record<keyof typeof LANE_NOTES, KitSound>;
 }
 
+/**
+ * Hybrid kits: synthesized kicks (punchy, tunable) with sampled drum-machine
+ * hats, rims, shakers and percussion (FluidR3 808 / Electronic / Standard kits).
+ */
 export const DRUM_KITS: DrumKit[] = [
   {
     id: 'kit-ukg',
     name: 'UK Garage 2-Step',
-    description: 'Tight punchy kick, crisp band-passed snare, woody rim and sizzling hats.',
+    description: 'Tight punchy kick, crisp 808 snare and hats, woody rim, maracas and bongos.',
     tags: ['ukg', '2-step', 'speed garage'],
-    voices: { kick: 'kick-ukg', snare: 'snare-ukg', clap: 'clap-ukg', rim: 'rim-ukg', closedHat: 'chh-ukg', openHat: 'ohh-ukg', shaker: 'shaker', perc: 'bongo' },
+    voices: { kick: 'kick-ukg', snare: 'pack:drum-kits/808-snare', clap: 'clap-ukg', rim: 'pack:drum-kits/808-rim', closedHat: 'pack:drum-kits/808-closed-hat', openHat: 'pack:drum-kits/808-open-hat', shaker: 'pack:drum-kits/808-maracas', perc: 'pack:gm-percussion/bongo-hi' },
   },
   {
     id: 'kit-909',
     name: '909 House',
-    description: 'Classic drum-machine house: driving kick, bright snare, noisy hats.',
+    description: 'Driving kick, bright snare and clap, crisp hats and a tambourine.',
     tags: ['house', '909', 'bass house'],
-    voices: { kick: 'kick-909', snare: 'snare-909', clap: 'clap-909', rim: 'rim-909', closedHat: 'chh-909', openHat: 'ohh-909', shaker: 'shaker', perc: 'tom-909' },
+    voices: { kick: 'kick-909', snare: 'snare-909', clap: 'clap-909', rim: 'pack:drum-kits/acoustic-side-stick', closedHat: 'pack:drum-kits/acoustic-closed-hat', openHat: 'pack:drum-kits/acoustic-open-hat', shaker: 'pack:drum-kits/acoustic-tambourine', perc: 'tom-909' },
   },
   {
     id: 'kit-808',
     name: '808 Classic',
-    description: 'Long boomy kick, snappy snare, metallic hats and congas.',
+    description: 'Long boomy kick with the classic 808 snare, clap, hats, congas and cowbell.',
     tags: ['808', 'garage', 'minimal'],
-    voices: { kick: 'kick-808', snare: 'snare-808', clap: 'clap-808', rim: 'rim-808', closedHat: 'chh-808', openHat: 'ohh-808', shaker: 'shaker', perc: 'conga-808' },
+    voices: { kick: 'kick-808', snare: 'pack:drum-kits/808-snare-2', clap: 'pack:drum-kits/808-clap', rim: 'pack:drum-kits/808-rim', closedHat: 'pack:drum-kits/808-closed-hat', openHat: 'pack:drum-kits/808-open-hat', shaker: 'pack:drum-kits/808-maracas', perc: 'pack:drum-kits/808-conga-hi' },
   },
   {
     id: 'kit-deep',
     name: 'Deep House',
-    description: 'Round warm kick, soft snare, roomy clap and gentle shakers.',
+    description: 'Round warm kick, soft snare, roomy clap, crisp hats, shaker and congas.',
     tags: ['deep house', 'soulful', 'minimal'],
-    voices: { kick: 'kick-deep', snare: 'snare-deep', clap: 'clap-deep', rim: 'rim-808', closedHat: 'chh-909', openHat: 'ohh-808', shaker: 'shaker-soft', perc: 'woodblock' },
+    voices: { kick: 'kick-deep', snare: 'snare-deep', clap: 'clap-deep', rim: 'pack:drum-kits/acoustic-side-stick', closedHat: 'pack:drum-kits/acoustic-closed-hat', openHat: 'pack:drum-kits/acoustic-open-hat', shaker: 'pack:gm-percussion/maracas', perc: 'pack:gm-percussion/conga-mute' },
   },
   {
     id: 'kit-speed',
     name: 'Speed Garage 4x4',
-    description: 'Hard distorted kick, 909 snare, garage hats — for 4x4 and bass house.',
+    description: 'Hard distorted kick, electronic snare, 808 hats and cowbell — 4x4 and bass house.',
     tags: ['speed garage', 'bass house', '4x4'],
-    voices: { kick: 'kick-speed', snare: 'snare-909', clap: 'clap-ukg', rim: 'rim-ukg', closedHat: 'chh-ukg', openHat: 'ohh-909', shaker: 'shaker', perc: 'cowbell-808' },
+    voices: { kick: 'kick-speed', snare: 'pack:drum-kits/elec-snare', clap: 'clap-ukg', rim: 'pack:drum-kits/808-rim', closedHat: 'pack:drum-kits/808-closed-hat', openHat: 'pack:drum-kits/elec-open-hat', shaker: 'pack:drum-kits/808-maracas', perc: 'pack:drum-kits/808-cowbell' },
   },
 ];
 
@@ -79,7 +86,9 @@ export function kitLanes(kitId: string): DrumLaneConfig[] {
     .map((k) => ({
       note: LANE_NOTES[k],
       name: LANE_LABELS[k],
-      source: { kind: 'synth' as const, voice: kit.voices[k] },
+      source: kit.voices[k].startsWith('pack:')
+        ? ({ kind: 'sample', sampleId: kit.voices[k] } as const)
+        : ({ kind: 'synth', voice: kit.voices[k] } as const),
       tune: 0,
       decay: 1,
       level: k === 'kick' ? 0 : k === 'closedHat' || k === 'shaker' ? -6 : -3,

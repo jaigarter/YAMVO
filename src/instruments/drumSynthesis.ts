@@ -186,7 +186,7 @@ function metallicHat(a: RenderArgs, decay: number, opts: { noise: number; hp: nu
   for (const f of HAT_FREQS) {
     const o = ctx.createOscillator();
     o.type = 'square';
-    o.frequency.value = f * t * 1.7;
+    o.frequency.value = f * t;
     const g = ctx.createGain();
     g.gain.value = opts.metal / HAT_FREQS.length;
     chain(o, g, bus);
@@ -238,14 +238,14 @@ function rim(a: RenderArgs, f1: number, f2: number, decay: number): void {
   const bus = ctx.createGain();
   for (const f of [f1, f2]) {
     const o = ctx.createOscillator();
-    o.type = 'square';
+    o.type = 'triangle';
     o.frequency.value = f * t;
     chain(o, bus);
     o.start(0);
   }
   const hp = filter(ctx, 'highpass', 600);
-  const bp = filter(ctx, 'peaking', 2600 * t, 2);
-  bp.gain.value = 8;
+  const bp = filter(ctx, 'peaking', 2200 * t, 1);
+  bp.gain.value = 3;
   const g = gainEnv(ctx, 0.5, 0.0003, decay * d);
   chain(bus, hp, bp, g, a.out);
 }

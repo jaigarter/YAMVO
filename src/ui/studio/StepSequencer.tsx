@@ -5,7 +5,7 @@ import { store } from '../../state/store';
 import { DrumMachine } from '../../instruments/DrumMachine';
 import { engine } from '../../engine';
 import { useFrame } from '../components/animation';
-import { DRUM_VOICES, isDrumVoice } from '../../instruments/drumSynthesis';
+import { laneSoundLabel, sourceFor } from '../../library/drumSounds';
 
 export const SAMPLE_DRAG_TYPE = 'application/x-groovelab-sample';
 
@@ -66,8 +66,7 @@ export function StepSequencer({ track, clip }: { track: Track; clip: Clip }) {
         </div>
       )}
       {lanes.map((lane) => {
-        const voiceLabel =
-          lane.source.kind === 'synth' && isDrumVoice(lane.source.voice) ? DRUM_VOICES[lane.source.voice].label : lane.source.kind === 'sample' ? 'Sample' : '';
+        const voiceLabel = laneSoundLabel(lane);
         return (
           <div className="step-row" key={lane.note}>
             <div
@@ -85,8 +84,7 @@ export function StepSequencer({ track, clip }: { track: Track; clip: Clip }) {
                 const id = e.dataTransfer.getData(SAMPLE_DRAG_TYPE);
                 if (!id) return;
                 e.preventDefault();
-                const source = id.startsWith('voice:') ? { kind: 'synth' as const, voice: id.slice(6) } : { kind: 'sample' as const, sampleId: id };
-                A.setDrumLane(track.id, lane.note, { source, tune: 0, decay: 1 });
+                A.setDrumLane(track.id, lane.note, { source: sourceFor(id), tune: 0, decay: 1 });
                 setTimeout(() => engine.audition(track.id, lane.note, 0.9), 150);
               }}
               title={`${voiceLabel} — click to audition, drop a sample from the Library to replace`}

@@ -234,6 +234,51 @@ for i, (n, label, cat) in enumerate(PERC):
     zones.append({"note": n, "vel": 1, "id": slug, "label": label, "category": cat, "audio": trim(seg, max_len=2.6)})
 index.append(write_pack("gm-percussion", {"name": "World & Latin Percussion", **LIC_FLUID}, zones, quality="3"))
 
+# Drum-machine one-shots from the FluidR3 TR-808, Electronic and Standard kits (channel 10).
+DRUM_KIT_SHOTS = [
+    # (kit program, note, id, label, category)
+    (25, 36, "808-kick", "808 Kick (sampled)", "Kick"),
+    (25, 38, "808-snare", "808 Snare", "Snare"),
+    (25, 40, "808-snare-2", "808 Snare 2", "Snare"),
+    (25, 39, "808-clap", "808 Clap", "Clap"),
+    (25, 37, "808-rim", "808 Rim", "Rim"),
+    (25, 42, "808-closed-hat", "808 Closed Hat", "Closed Hat"),
+    (25, 44, "808-pedal-hat", "808 Pedal Hat", "Closed Hat"),
+    (25, 46, "808-open-hat", "808 Open Hat", "Open Hat"),
+    (25, 70, "808-maracas", "808 Maracas", "Shaker"),
+    (25, 75, "808-claves", "808 Claves", "Perc"),
+    (25, 56, "808-cowbell", "808 Cowbell", "Perc"),
+    (25, 63, "808-conga-hi", "808 Conga Hi", "Perc"),
+    (25, 64, "808-conga-low", "808 Conga Low", "Perc"),
+    (25, 49, "808-cymbal", "808 Cymbal", "Cymbal"),
+    (24, 36, "elec-kick", "Electronic Kick", "Kick"),
+    (24, 38, "elec-snare", "Electronic Snare", "Snare"),
+    (24, 40, "elec-snare-2", "Electronic Snare 2", "Snare"),
+    (24, 42, "elec-closed-hat", "Electronic Closed Hat", "Closed Hat"),
+    (24, 46, "elec-open-hat", "Electronic Open Hat", "Open Hat"),
+    (0, 42, "acoustic-closed-hat", "Crisp Closed Hat", "Closed Hat"),
+    (0, 44, "acoustic-pedal-hat", "Pedal Hat", "Closed Hat"),
+    (0, 46, "acoustic-open-hat", "Crisp Open Hat", "Open Hat"),
+    (0, 37, "acoustic-side-stick", "Side Stick", "Rim"),
+    (0, 38, "acoustic-snare", "Acoustic Snare", "Snare"),
+    (0, 51, "acoustic-ride", "Ride Cymbal", "Cymbal"),
+    (0, 49, "acoustic-crash", "Crash Cymbal", "Cymbal"),
+    (0, 54, "acoustic-tambourine", "Tambourine", "Shaker"),
+]
+print("FluidR3Mono drum machines")
+slot = 3.0
+events = []
+for i, (kit, n, *_rest) in enumerate(DRUM_KIT_SHOTS):
+    t = 0.5 + i * slot
+    events += [(t - 0.2, bytes([0xC9, kit])), (t, bytes([0x99, n, 112])), (t + 0.2, bytes([0x89, n, 0]))]
+x = render(events, 0.5 + len(DRUM_KIT_SHOTS) * slot + 1)
+zones = []
+for i, (kit, n, zid, label, cat) in enumerate(DRUM_KIT_SHOTS):
+    t = 0.5 + i * slot
+    seg = x[int(t * SR) : int((t + slot - 0.2) * SR)].copy()
+    zones.append({"note": n, "vel": 1, "id": zid, "label": label, "category": cat, "audio": trim(seg, max_len=2.4)})
+index.append(write_pack("drum-kits", {"name": "Drum Machines (808, Electronic, Standard)", **LIC_FLUID}, zones, quality="2"))
+
 with open(os.path.join(REPO, "src", "library", "packIndex.json"), "w") as f:
     json.dump(index, f, indent=1)
 total = sum(p["bytes"] for p in index)

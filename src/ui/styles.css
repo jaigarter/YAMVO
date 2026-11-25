@@ -2274,3 +2274,34 @@ html {
     animation: none;
   }
 }
+.part-card.wide {
+  flex-direction: row;
+  align-items: baseline;
+  gap: 10px;
+}
+
+/* Phone: restore the stacked top bar after the desktop five-area rules above */
+@media (max-width: 700px) {
+  .topbar {
+    grid-template-columns: minmax(0, 1fr) auto;
+  }
+  .nav {
+    min-width: 0;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+  .nav button {
+    flex: none;
+    padding: 6px 9px;
+  }
+  .transport {
+    overflow-x: auto;
+  }
+  .brand {
+    font-size: 11px;
+    gap: 9px;
+  }
+  .top-right .btn:not(.primary):not(.ghost) {
+    display: none;
+  }
+}

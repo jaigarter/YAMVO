@@ -275,6 +275,19 @@ export const PRESETS: InstrumentPreset[] = [
     tags: ['atmos', 'texture', 'ambient', 'dark'],
     config: synth({ engine: 'fm', harmonicity: 3.5, modIndex: 12, modWave: 'triangle', modDecay: 3, modSustain: 0.6, attack: 2, decay: 2, sustain: 0.8, release: 3, chorus: 0.6, movement: 0.7, movementRate: 0.08, level: -6 }),
   },
+  {
+    id: 'fx-riser', name: 'Riser', category: 'Synths', family: 'FX', focusNote: 60,
+    description: 'Detuned saw sweep that opens over four bars — tension before a drop.',
+    tags: ['fx', 'riser', 'build', 'transition'],
+    config: synth({ engine: 'subtractive', osc: 'sawtooth', unison: 5, detune: 45, cutoff: 140, resonance: 7, envAmount: 6.5, fAttack: 6.5, fDecay: 0.1, fSustain: 1, attack: 3.5, decay: 0.1, sustain: 1, release: 0.6, chorus: 0.5, level: -6 }),
+  },
+  {
+    id: 'fx-crash', name: 'Impact Crash', category: 'Synths', family: 'FX', focusNote: 60,
+    description: 'Crash cymbal hit to mark the downbeat of a drop.',
+    tags: ['fx', 'impact', 'crash', 'transition'],
+    config: { type: 'sampler', presetId: '', params: { sampleId: 'pack:drum-kits/acoustic-crash', root: 60, attack: 0.001, release: 1.5, level: 0 } },
+    license: 'fluidr3',
+  },
   ...sampledPresets(),
 ];
 

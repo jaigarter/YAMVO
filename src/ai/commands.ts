@@ -11,6 +11,8 @@ import { createClip, createTrack, TRACK_COLORS, uid } from '../model/factory';
 import { getPreset, presetConfig } from '../instruments/presets';
 import { beatsPerBar } from '../sequencer/timing';
 import { LANE_NOTES } from '../instruments/drumKits';
+import { generateGroove, STYLES, type Style } from './generators';
+import { generateSong } from './song';
 
 /** [pitch, startBeat, durationBeats, velocity 0..1]. Pitch: MIDI number, note name ("F2") or drum name ("kick"). */
 export type NoteTuple = [number | string, number, number, number?];
@@ -23,6 +25,8 @@ export type Command =
   | { op: 'add_track'; name: string; preset: string }
   | { op: 'set_preset'; track: string; preset: string }
   | { op: 'remove_track'; track: string }
+  | { op: 'clear_track'; track: string }
+  | { op: 'generate'; what: 'song' | 'groove'; style: Style; seed?: number }
   | { op: 'write_clip'; track: string; startBar?: number; bars?: number; patternBars: number; notes: NoteTuple[]; name?: string; keepOthers?: boolean }
   | { op: 'set_mixer'; track: string; volume?: number; pan?: number; reverb?: number; delay?: number; sidechain?: number; mute?: boolean }
   | { op: 'arrange'; sections: { name: string; bars: number; tracks: string[] }[] };
@@ -96,7 +100,8 @@ export function validateCommands(input: unknown): { commands: Command[]; errors:
         else bad('invalid track/preset');
         break;
       case 'remove_track':
-        if (isStr(c.track)) commands.push({ op: 'remove_track', track: c.track });
+      case 'clear_track':
+        if (isStr(c.track)) commands.push({ op: c.op, track: c.track });
         else bad('track missing');
         break;
       case 'write_clip': {
@@ -106,7 +111,7 @@ export function validateCommands(input: unknown): { commands: Command[]; errors:
         }
         const notes = (c.notes as unknown[])
           .filter((n): n is NoteTuple => Array.isArray(n) && n.length >= 3 && parsePitch(n[0] as number | string) !== null && isNum(n[1]) && isNum(n[2]))
-          .slice(0, 800);
+          .slice(0, 2500);
         commands.push({
           op: 'write_clip',
           track: c.track,
@@ -119,6 +124,11 @@ export function validateCommands(input: unknown): { commands: Command[]; errors:
         });
         break;
       }
+      case 'generate':
+        if ((c.what === 'song' || c.what === 'groove') && STYLES.some((st) => st.id === c.style))
+          commands.push({ op: 'generate', what: c.what, style: c.style as Style, seed: isNum(c.seed) ? c.seed : undefined });
+        else bad(`what must be song|groove and style one of ${STYLES.map((st) => st.id).join(', ')}`);
+        break;
       case 'set_mixer':
         if (isStr(c.track))
           commands.push({
@@ -204,6 +214,17 @@ export function applyCommands(p: Project, commands: Command[]): string[] {
         if (!t) break;
         p.tracks = p.tracks.filter((x) => x !== t);
         notes.push(`Removed ${t.name}`);
+        break;
+      }
+      case 'generate': {
+        const g = c.what === 'song' ? generateSong(p, c.style, c.seed) : generateGroove(p, c.style, { seed: c.seed });
+        applyCommands(p, g.commands);
+        notes.push(g.title);
+        break;
+      }
+      case 'clear_track': {
+        const t = findTrackByName(p, c.track);
+        if (t) t.clips = [];
         break;
       }
       case 'write_clip': {

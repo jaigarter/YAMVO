@@ -16,7 +16,7 @@ copyFileSync(`${out}/build/assets/${css}`, `${out}/assets/app.css`);
 writeFileSync(
   `${out}/page.html`,
   `<title>GROOVE LAB</title>
-<meta name="color-scheme" content="dark">
+<script type="application/json" id="claude-artifacts-manifest">{"permissions": ["full-access"]}</script>
 <link rel="stylesheet" href="assets/app.css">
 <div id="root"></div>
 <script type="module" src="assets/app.js"></script>

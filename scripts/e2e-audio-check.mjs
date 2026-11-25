@@ -103,6 +103,29 @@ try {
   const badV = voices.filter((v) => !(v.rms > 0.005) || !(v.peak <= 0.95));
   check(`all ${voices.length} synthesized drum voices render`, badV.length === 0, badV.map((v) => v.id).join(', '));
 
+
+  // Generated full track: real audio with an energy arc (break quieter than the drops, intro quieter than drop).
+  const arc = await page.evaluate(async () => {
+    const g = window.__grooveLab;
+    const p = g.lib.factory.createEmptyProject();
+    p.tracks = [];
+    g.lib.applyCommands(p, g.lib.generateSong(p, 'house', 11).commands);
+    const t0 = performance.now();
+    const buf = await g.render.renderProject(p, { startBar: 0, endBar: p.lengthBars, tail: 1 });
+    const ms = performance.now() - t0;
+    const sec = (bar) => (bar * 4 * 60) / p.bpm + 0.05;
+    const rmsOf = (b0, b1) => {
+      const d = buf.getChannelData(0);
+      const a = Math.floor(sec(b0) * buf.sampleRate), z = Math.floor(sec(b1) * buf.sampleRate);
+      let s = 0;
+      for (let i = a; i < z; i++) s += d[i] * d[i];
+      return Math.sqrt(s / (z - a));
+    };
+    return { intro: rmsOf(0, 8), drop: rmsOf(16, 32), brk: rmsOf(32, 40), drop2: rmsOf(48, 64), peak: g.render.peakAndRms(buf).peak, dur: buf.duration, ms };
+  });
+  check('generated track has an energy arc', arc.intro < arc.drop * 0.8 && arc.brk < arc.drop * 0.8 && arc.drop2 > arc.brk, `intro ${arc.intro.toFixed(3)} · drop ${arc.drop.toFixed(3)} · break ${arc.brk.toFixed(3)} · drop2 ${arc.drop2.toFixed(3)}`);
+  check('generated track does not clip', arc.peak <= 1, `peak ${arc.peak.toFixed(3)}, ${arc.dur.toFixed(0)}s rendered in ${(arc.ms / 1000).toFixed(1)}s`);
+
   // ---------------------------------------------------------------- UI flow
   const SHOTS = process.env.SHOTS_DIR;
   await page.setViewportSize({ width: 1440, height: 900 });

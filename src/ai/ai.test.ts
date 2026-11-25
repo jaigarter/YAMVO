@@ -67,3 +67,34 @@ describe('generators', () => {
     expect(drums.clips.length).toBeGreaterThanOrEqual(4);
   });
 });
+
+import { generateSong, SONG_FORM } from './song';
+describe('song generator', () => {
+  it('writes a 72-bar arrangement with an energy arc on the demo project', () => {
+    const p = createDemoProject();
+    const g = generateSong(p, 'house', 7);
+    const { commands, errors } = validateCommands(JSON.parse(JSON.stringify(g.commands)));
+    expect(errors).toEqual([]);
+    applyCommands(p, commands);
+    expect(p.lengthBars).toBe(72);
+    const drums = p.tracks.find((t) => t.kind === 'drums')!;
+    const kicksIn = (fromBar: number, toBar: number) =>
+      drums.clips.flatMap((c) => c.notes.filter((n) => n.pitch === 36).map((n) => c.start + n.start)).filter((b) => b >= fromBar * 4 && b < toBar * 4).length;
+    // Break (bars 32-40) has no kick; the drops have plenty.
+    expect(kicksIn(32, 40)).toBe(0);
+    expect(kicksIn(16, 32)).toBeGreaterThan(40);
+    // The bass is silent in the intro and present in the drop.
+    const bass = p.tracks.find((t) => trackRole(t) === 'bass')!;
+    expect(bass.clips.some((c) => c.start < 8 * 4)).toBe(false);
+    expect(bass.clips.some((c) => c.start === 16 * 4)).toBe(true);
+    // No stray loops from the old tracks.
+    for (const t of p.tracks) for (const c of t.clips) expect(c.start + c.length).toBeLessThanOrEqual(72 * 4);
+    expect(SONG_FORM.reduce((a, s) => a + s.bars, 0)).toBe(72);
+  });
+  it('can be requested through the generate command', () => {
+    const p = createEmptyProject();
+    const { commands } = validateCommands([{ op: 'generate', what: 'song', style: 'ukg', seed: 3 }]);
+    applyCommands(p, commands);
+    expect(p.tracks.map((t) => t.name)).toEqual(expect.arrayContaining(['Riser', 'Impact', 'Atmos']));
+  });
+});

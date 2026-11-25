@@ -262,5 +262,16 @@
   "file": "gm-percussion.mp3",
   "zoneCount": 25,
   "bytes": 225024
+ },
+ {
+  "id": "drum-kits",
+  "name": "Drum Machines (808, Electronic, Standard)",
+  "license": "MIT",
+  "attribution": "FluidR3 by Frank Wen; FluidR3Mono by Michael Cowgill; MS_General adaptation by S. Christian Collins (MIT)",
+  "source": "https://github.com/musescore/MuseScore/tree/3.6.2/share/sound",
+  "licenseId": "fluidr3",
+  "file": "drum-kits.mp3",
+  "zoneCount": 27,
+  "bytes": 309952
  }
 ]

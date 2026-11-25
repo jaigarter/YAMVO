@@ -4,6 +4,7 @@ import * as A from '../state/actions';
 import { engine } from '../engine';
 import { downloadBlob, exportWav } from '../export/render';
 import { zipFiles } from '../export/zip';
+import { saveToMusicFolder } from '../platform/desktop';
 
 /** Hosted preview (claude.ai artifact): the viewer blocks downloads started by the page. */
 const PREVIEW_BUILD = import.meta.env.MODE === 'artifact';
@@ -32,7 +33,10 @@ export function ExportModal({ onClose }: { onClose: () => void }) {
       const blob = await exportWav(p, { ...r, tail: tail ? 2.5 : 0 }, bits);
       const safe = p.name.replace(/[^\w\- ]+/g, '').trim() || 'groove';
       const filename = `${safe} ${p.bpm}bpm.wav`;
-      if (PREVIEW_BUILD) {
+      const desktopPath = PREVIEW_BUILD ? await saveToMusicFolder(filename, new Uint8Array(await blob.arrayBuffer())).catch(() => null) : null;
+      if (desktopPath) {
+        A.toast(`Saved to ${desktopPath}`);
+      } else if (PREVIEW_BUILD) {
         // claude.ai saves files through the downloads capability; WAV is not an
         // allowed type there, so it is wrapped in a .zip.
         const downloads = await getDownloads();
@@ -101,7 +105,7 @@ export function ExportModal({ onClose }: { onClose: () => void }) {
         </p>
         {PREVIEW_BUILD && (
           <p style={{ color: 'var(--text-2)', fontSize: 12, lineHeight: 1.5 }}>
-            On claude.ai the WAV is delivered inside a .zip file, and you will be asked to confirm the download.
+            In the GROOVE LAB desktop app the WAV goes straight to Music › GROOVE LAB. In the browser it arrives inside a .zip and you confirm the download.
           </p>
         )}
         <div className="actions">

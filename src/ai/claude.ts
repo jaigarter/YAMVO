@@ -73,6 +73,9 @@ Command language (JSON). Times are in beats (quarter notes); a 16th note = 0.25.
   write_clip replaces that track's clips in the covered range (add "keepOthers":true to keep them).
 - {"op":"set_mixer","track":"Bass","volume":-6,"pan":0,"reverb":0.2,"delay":0.1,"sidechain":0.5,"mute":false}
   volume in dB (-60..6), reverb/delay/sidechain 0..1 (sidechain = ducking from the kick).
+- {"op":"clear_track","track":"Pad"}   removes all clips of a track
+- {"op":"generate","what":"song","style":"ukg"}   runs GROOVE LAB's own arranger: a 72-bar track with an energy arc (Intro 8, Build 8, Drop 16, Break 8, Build 2 8, Drop 2 16, Outro 8), fills, snare rolls, risers and crashes, on tracks Drums/Bass/Chords/Hook/Atmos/Riser/Impact. what can also be "groove" (4-bar loop). styles: ukg, speed-garage, house, deep-house, minimal, bass-house.
+  For a full song request, prefer "generate" first, then refine with set_preset / set_mixer / write_clip (startBar + keepOthers:true for a single section).
 - {"op":"arrange","sections":[{"name":"Intro","bars":8,"tracks":["Drums"]},{"name":"Drop","bars":16,"tracks":["Drums","Bass","Chords"]}]}
   lays each track's current pattern across the sections where it plays; sets song length.
 
@@ -85,7 +88,8 @@ ${projectSummary(p)}
 User request: ${request}
 
 Reply with ONLY a JSON object: {"message": "<one or two friendly sentences in the user's language explaining what you made>", "commands": [ ... ]}.
-Write complete, musical patterns (drums usually 2 bars, harmony/bass 4 bars). Refer to existing tracks by their exact names.`;
+Write complete, musical patterns (drums usually 2 bars, harmony/bass 4 bars). Refer to existing tracks by their exact names.
+Songs must tell a story, never one flat loop: build energy by adding and removing parts, vary patterns every 8 bars, use fills at phrase ends, drop the bass before a drop, hold the hook back, and answer it with a variation later.`;
 }
 
 export interface ClaudeProposal {

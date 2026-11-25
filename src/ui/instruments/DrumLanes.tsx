@@ -1,12 +1,11 @@
 import type { Track } from '../../model/types';
 import * as A from '../../state/actions';
 import { DrumMachine } from '../../instruments/DrumMachine';
-import { DRUM_VOICES, type DrumVoiceId } from '../../instruments/drumSynthesis';
+import { DRUM_CATEGORIES, DRUM_SOUNDS, laneSoundId, sourceFor } from '../../library/drumSounds';
 import { Knob } from '../components/controls';
 import { engine } from '../../engine';
 import { PlayIcon } from '../components/Icons';
 
-const VOICE_IDS = Object.keys(DRUM_VOICES) as DrumVoiceId[];
 
 export function DrumLanes({ track }: { track: Track }) {
   const lanes = DrumMachine.lanesOf(track.instrument);
@@ -35,29 +34,25 @@ export function DrumLanes({ track }: { track: Track }) {
               </td>
               <td style={{ fontWeight: 600 }}>{l.name}</td>
               <td>
-                {l.source.kind === 'synth' ? (
-                  <select
-                    className="select"
-                    value={l.source.voice}
-                    onChange={(e) => {
-                      A.setDrumLane(track.id, l.note, { source: { kind: 'synth', voice: e.target.value } });
-                      setTimeout(() => engine.audition(track.id, l.note, 0.9), 120);
-                    }}
-                  >
-                    {VOICE_IDS.map((v) => (
-                      <option key={v} value={v}>
-                        {DRUM_VOICES[v].category} — {DRUM_VOICES[v].label}
-                      </option>
-                    ))}
-                  </select>
-                ) : (
-                  <span style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
-                    <span className="tag">Library sample</span>
-                    <button className="btn small ghost" onClick={() => A.setDrumLane(track.id, l.note, { source: { kind: 'synth', voice: 'kick-909' } })}>
-                      Use synth voice
-                    </button>
-                  </span>
-                )}
+                <select
+                  className="select"
+                  value={laneSoundId(l)}
+                  onChange={(e) => {
+                    A.setDrumLane(track.id, l.note, { source: sourceFor(e.target.value), tune: 0, decay: 1 });
+                    setTimeout(() => engine.audition(track.id, l.note, 0.9), 150);
+                  }}
+                >
+                  {!DRUM_SOUNDS.some((d) => d.id === laneSoundId(l)) && <option value={laneSoundId(l)}>Library sample</option>}
+                  {DRUM_CATEGORIES.map((cat) => (
+                    <optgroup key={cat} label={cat}>
+                      {DRUM_SOUNDS.filter((d) => d.category === cat).map((d) => (
+                        <option key={d.id} value={d.id}>
+                          {d.label}
+                        </option>
+                      ))}
+                    </optgroup>
+                  ))}
+                </select>
               </td>
               <td>
                 <Knob label="" size={30} value={l.tune} min={-12} max={12} step={0.5} unit="st" bipolar defaultValue={0} onChange={(v) => A.setDrumLane(track.id, l.note, { tune: v }, { history: false })} />

@@ -11,6 +11,7 @@ import type { PitchClass, ScaleName } from '../model/types';
 import { ProjectsModal } from './ProjectsModal';
 import { ExportModal } from './ExportModal';
 import { applyTheme, loadTheme, type Theme } from './theme';
+import { InstallButton } from './InstallButton';
 
 const VIEWS: { id: View; label: string }[] = [
   { id: 'studio', label: 'Studio' },
@@ -161,6 +162,7 @@ export function TopBar() {
           {theme === 'light' ? <MoonIcon /> : <SunIcon />}
         </button>
         <span className="save-state">{{ saved: 'Saved', saving: 'Saving…', dirty: 'Edited', error: 'Not saved' }[saveState]}</span>
+        <InstallButton />
         <button className="btn primary" onClick={() => setModal('export')}>
           <DownloadIcon /> Export
         </button>

@@ -1,7 +1,6 @@
 import { DRUM_VOICES, type DrumVoiceId } from '../instruments/drumSynthesis';
 import { PRESETS } from '../instruments/presets';
-import { PACKS } from './samplePacks';
-import packPercussion from '../../public/packs/gm-percussion.json';
+import { DRUM_SOUNDS } from './drumSounds';
 import type { UserSampleMeta } from './sampleStore';
 
 export type LibraryKind = 'sample' | 'preset';
@@ -45,17 +44,15 @@ export function factoryItems(): LibraryItem[] {
     description: p.description,
     license: p.license ?? 'groove-lab-factory',
   }));
-  const perc: LibraryItem[] = (packPercussion.zones as { id?: string; label?: string; category?: string }[])
-    .filter((z) => z.id)
-    .map((z) => ({
-      id: `pack:gm-percussion/${z.id}`,
-      kind: 'sample',
-      name: z.label!,
-      category: 'Drums',
-      type: z.category ?? 'Perc',
-      tags: ['percussion', 'house', 'latin'],
-      license: PACKS.find((p) => p.id === 'gm-percussion')?.licenseId ?? 'fluidr3',
-    }));
+  const perc: LibraryItem[] = DRUM_SOUNDS.filter((d) => d.sampled).map((d) => ({
+    id: d.id,
+    kind: 'sample',
+    name: d.label,
+    category: 'Drums',
+    type: d.category,
+    tags: d.id.includes('808') ? ['808', 'drum machine', 'ukg', 'house'] : d.id.includes('gm-percussion') ? ['percussion', 'latin', 'house'] : ['drum machine', 'house', 'deep house'],
+    license: 'fluidr3',
+  }));
   return [...presets, ...voices, ...perc];
 }
 

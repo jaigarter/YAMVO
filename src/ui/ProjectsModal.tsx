@@ -36,7 +36,7 @@ export function ProjectsModal({ onClose }: { onClose: () => void }) {
       <div className="backdrop" onClick={onClose} />
       <div className="modal" role="dialog" aria-label="Projects">
         <h3>Projects</h3>
-        <div className="menu-label">Start from a style — a full groove is generated for you</div>
+        <div className="menu-label">Start from a style — a full track is generated for you</div>
         <div className="row" style={{ flexWrap: 'wrap' }}>
           {STYLES.map((st) => (
             <button

@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { store, useStore } from '../../state/store';
 import * as A from '../../state/actions';
 import { STYLES, generateForRole, generateGroove, generateStructure, type Role, type Style } from '../../ai/generators';
+import { generateSong } from '../../ai/song';
 import { askClaude, getClaude } from '../../ai/claude';
 import { SparkIcon } from '../components/Icons';
 
@@ -80,15 +81,28 @@ export function Producer() {
             </button>
           ))}
         </div>
-        <button className="hero-action" onClick={() => {
-          const g = generateGroove(store.getProject(), style);
-          A.propose(g.title, g.message, g.commands, 'generator');
-        }}>
+        <button
+          className="hero-action"
+          onClick={() => {
+            const g = generateSong(store.getProject(), style);
+            A.propose(g.title, g.message, g.commands, 'generator');
+          }}
+        >
           <SparkIcon size={18} />
           <span>
-            <strong>Generate full groove</strong>
-            <small>Tempo, swing, drums, bass, chords and a hook</small>
+            <strong>Generate full track</strong>
+            <small>A 72-bar song that builds: intro, build, drop, break, second drop and outro</small>
           </span>
+        </button>
+        <button
+          className="part-card wide"
+          onClick={() => {
+            const g = generateGroove(store.getProject(), style);
+            A.propose(g.title, g.message, g.commands, 'generator');
+          }}
+        >
+          <strong>Loop idea</strong>
+          <small>A 4-bar groove (drums, bass, chords, hook) to jam and edit</small>
         </button>
         <div className="part-grid">
           {PARTS.map((p) => (

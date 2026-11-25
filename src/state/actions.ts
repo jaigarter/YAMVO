@@ -7,7 +7,8 @@ import { beatsPerBar } from '../sequencer/timing';
 import { snap } from '../model/theory';
 import { engine } from '../engine';
 import { applyCommands, type Command } from '../ai/commands';
-import { generateGroove, STYLES, type Style } from '../ai/generators';
+import { STYLES, type Style } from '../ai/generators';
+import { generateSong } from '../ai/song';
 
 type HistoryOpt = { history?: boolean };
 
@@ -426,10 +427,9 @@ export function discardProposal(): void {
 /** Starts a fresh project with a generated groove in the given style. */
 export function newFromStyle(style: Style): void {
   engine.stop();
-  const p = createEmptyProject(`${STYLES.find((s) => s.id === style)!.label} sketch`);
+  const p = createEmptyProject(`${STYLES.find((s) => s.id === style)!.label} track`);
   p.tracks = [];
-  const g = generateGroove(p, style);
-  applyCommands(p, g.commands);
+  applyCommands(p, generateSong(p, style).commands);
   store.loadProject(p);
   store.setUi({ producerStyle: style, proposal: null });
 }

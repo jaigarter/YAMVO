@@ -174,6 +174,13 @@ Las baterías también son notas (mapeo General MIDI: 36 kick, 38 snare, 39 clap
 - [x] Sidechain (pump) por pista, plantillas por género, estructura de canción automática
 - [x] Export WAV en el artifact (zip vía capacidad `downloads`)
 
+### Fase 2c — Temas con historia y escritorio ✅
+- [x] Kits híbridos: bombos sintetizados + charles/rims/shakers sampleados (808, Electronic, Standard de FluidR3)
+- [x] Generador de temas completos (`src/ai/song.ts`): Intro → Build → Drop → Break → Build 2 → Drop 2 → Outro,
+      con entradas/salidas de partes, fills, redobles, riser, crash, variaciones en el Drop 2
+- [x] Orden `generate` para que Claude parta del arreglista y lo refine
+- [x] App de escritorio vía Claude desktop (`desktop`): Install app, icono en el Dock, export directo a ~/Music/GROOVE LAB
+
 ### Fase 3 — Arreglo y edición avanzada
 - Grabación MIDI en clips, cuantización, automatización de parámetros
 - Secciones (intro/drop/break), duplicar/variar, markers
